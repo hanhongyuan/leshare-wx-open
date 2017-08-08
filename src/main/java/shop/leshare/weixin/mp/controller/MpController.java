@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
  * @author Binary Wang(https://github.com/binarywang)
  */
 @RestController
-@RequestMapping("/v1/wx/mp")
-public class WechatController {
-	private final Logger logger = LogManager.getLogger(WechatController.class);
+@RequestMapping("/mp")
+public class MpController {
+	private final Logger logger = LogManager.getLogger(MpController.class);
 	
 	@Autowired
 	private WxMpService wxService;
