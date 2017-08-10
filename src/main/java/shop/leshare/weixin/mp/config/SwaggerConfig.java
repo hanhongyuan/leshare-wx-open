@@ -40,7 +40,7 @@ public class SwaggerConfig {
 	private ApiInfo apiInfo(){
 		return new ApiInfoBuilder()
 				.title("LeShare API")
-				.description("LeShare 本地电商服务平台")
+				.description("微信开放平台")
 				.termsOfServiceUrl("http://leshare.shop")
 				.version("1.0")
 				.build();
