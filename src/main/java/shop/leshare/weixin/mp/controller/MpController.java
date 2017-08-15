@@ -19,7 +19,7 @@ public class MpController {
 	private final Logger logger = LogManager.getLogger(MpController.class);
 	
 	@Autowired
-	private WxMpService wxService;
+	private WxMpService wxMpService;
 	
 	@Autowired
 	private WxMpMessageRouter router;
@@ -37,7 +37,7 @@ public class MpController {
 			throw new IllegalArgumentException("请求参数非法，请核实!");
 		}
 		
-		if (this.wxService.checkSignature(timestamp, nonce, signature)) {
+		if (this.wxMpService.checkSignature(timestamp, nonce, signature)) {
 			return echostr;
 		}
 		
@@ -58,7 +58,7 @@ public class MpController {
 						+ " timestamp=[{}], nonce=[{}], requestBody=[\n{}\n] ",
 				signature, encType, msgSignature, timestamp, nonce, requestBody);
 		
-		if (!this.wxService.checkSignature(timestamp, nonce, signature)) {
+		if (!this.wxMpService.checkSignature(timestamp, nonce, signature)) {
 			throw new IllegalArgumentException("非法请求，可能属于伪造的请求！");
 		}
 		
@@ -75,7 +75,7 @@ public class MpController {
 		} else if ("aes".equals(encType)) {
 			// aes加密的消息
 			WxMpXmlMessage inMessage = WxMpXmlMessage.fromEncryptedXml(
-					requestBody, this.wxService.getWxMpConfigStorage(), timestamp,
+					requestBody, this.wxMpService.getWxMpConfigStorage(), timestamp,
 					nonce, msgSignature);
 			this.logger.debug("\n消息解密后内容为：\n{} ", inMessage.toString());
 			WxMpXmlOutMessage outMessage = this.route(inMessage);
@@ -83,7 +83,7 @@ public class MpController {
 				return "";
 			}
 			
-			out = outMessage.toEncryptedXml(this.wxService.getWxMpConfigStorage());
+			out = outMessage.toEncryptedXml(this.wxMpService.getWxMpConfigStorage());
 		}
 		
 		this.logger.debug("\n组装回复信息：{}", out);

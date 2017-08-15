@@ -1,5 +1,6 @@
 package shop.leshare.weixin.mp.controller;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,35 +43,11 @@ public class OpenController {
 		
 		wxOpenService.saveVerifyTicket(requestBody, signature, timestamp, nonce, encType, msgSignature);
 		
-//		WxMpServiceApacheHttpClientImpl wxMpServiceApacheHttpClient = new WxMpServiceApacheHttpClientImpl();
-//		wxMpServiceApacheHttpClient.setWxMpConfigStorage(configStorage);
-//
-//		WxOpenAccessTokenQuery accessTokenQuery = new WxOpenAccessTokenQuery();
-//		accessTokenQuery.setComponent_appid(configStorage.getAppId());
-//		accessTokenQuery.setComponent_appsecret(configStorage.getSecret());
-//		accessTokenQuery.setComponent_verify_ticket(verifyMessage.getComponentVerifyTicket());
-//
-//		String url = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
-//		try {
-//			String result = SimplePostRequestExecutor.create(wxMpServiceApacheHttpClient).execute(url, accessTokenQuery.toJson());
-//			if(!StringUtils.isEmpty(result)){
-//				WxOpenAccessTokenResult accessTokenResult = WxOpenAccessTokenResult.fromJson(result);
-//
-//				logger.info("获取第三方平台component_access_token: {}", accessTokenResult);
-//
-//				String preAuthCodeUrl = "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=" + accessTokenResult.getComponent_access_token();
-//				WxOpenPreAuthCodeQuery appidQuery = new WxOpenPreAuthCodeQuery();
-//				appidQuery.setComponent_appid(configStorage.getAppId());
-//				logger.info("请求pre_auth_code, 请求报文{}", appidQuery.toJson());
-//				String preAuthCodeJson = SimplePostRequestExecutor.create(wxMpServiceApacheHttpClient).execute(preAuthCodeUrl, appidQuery.toJson());
-//				WxOpenPreAuthCodeResult preAuthCodeResult = WxOpenPreAuthCodeResult.fromJson(preAuthCodeJson);
-//				logger.info(preAuthCodeResult);
-//			}
-//		} catch (WxErrorException e) {
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		String componentAccessToken = wxOpenService.queryComponentAccessToken();
+		
+		if(!StringUtils.isEmpty(componentAccessToken)){
+			wxOpenService.queryPreAuthCode(componentAccessToken);
+		}
 		
 		return "success";
 	}
