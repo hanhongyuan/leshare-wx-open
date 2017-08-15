@@ -79,4 +79,14 @@ public class WxOpenVerifyMessage implements Serializable{
 	public static WxOpenVerifyMessage fromXml(InputStream is) {
 		return XStreamTransformer.fromXml(WxOpenVerifyMessage.class, is);
 	}
+	
+	@Override
+	public String toString() {
+		return "WxOpenVerifyMessage{" +
+				"appId='" + appId + '\'' +
+				", createTime='" + createTime + '\'' +
+				", infoType='" + infoType + '\'' +
+				", componentVerifyTicket='" + componentVerifyTicket + '\'' +
+				'}';
+	}
 }

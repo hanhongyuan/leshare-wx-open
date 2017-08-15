@@ -43,10 +43,13 @@ public class WxOpenServiceImpl implements WxOpenService{
 	private WxMpService wxMpService;
 	
 	private static final String API_COMPONENT_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
-	private static final String PRE_AUTH_CODE_URL = "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s";
+	private static final String API_CREATE_PREAUTHCODE_URL = "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s";
+	private static final String API_QUERY_AUTH_URL = "https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=%s";
+	
 	private static final String COMPONENT_VERIFY_TICKET_KEY = "COMPONENT_VERIFY_TICKET";
 	private static final String COMPONENT_ACCESS_TOKEN_KEY = "COMPONENT_ACCESS_TOKEN";
 	private static final String PRE_AUTH_CODE_KEY = "PRE_AUTH_CODE";
+	private static final String AUTH_CODE_KEY = "AUTH_CODE";
 	
 	/**
 	 * 处理微信服务器推送的component_verify_ticket, 保存数据到redis中
@@ -114,6 +117,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		Object componentAccessTokenObj = redisTemplate.getString(COMPONENT_ACCESS_TOKEN_KEY);
 		
 		if(componentAccessTokenObj != null){
+			logger.info("query component_access_token from redis: {} ", componentAccessTokenObj.toString());
 			return componentAccessTokenObj.toString();
 		}
 		
@@ -169,7 +173,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		logger.info("请求pre_auth_code, 请求报文: {}", appidQuery.toJson());
 		String preAuthCodeJson = null;
 		try {
-			preAuthCodeJson = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(PRE_AUTH_CODE_URL, componentAccessToken), appidQuery.toJson());
+			preAuthCodeJson = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_CREATE_PREAUTHCODE_URL, componentAccessToken), appidQuery.toJson());
 		} catch (WxErrorException e) {
 			logger.error(e.toString(), e);
 		} catch (IOException e) {
@@ -194,4 +198,77 @@ public class WxOpenServiceImpl implements WxOpenService{
 		
 		return preAuthCodeResult.getPre_auth_code();
 	}
+	
+	/**
+	 * 保存auth_code
+	 * @param authCode
+	 * @param expiresIn
+	 */
+	@Override
+	public Result saveAuthCode(String authCode, long expiresIn) {
+	
+		if(StringUtils.isEmpty(authCode)) {
+			logger.error("授权码不能为空.");
+			return Result.fail();
+		}
+		
+		//save to redis
+		redisTemplate.addString(AUTH_CODE_KEY, expiresIn, authCode);
+		
+		return Result.success();
+	}
+	
+	/**
+	 * 该API用于使用授权码换取授权公众号或小程序的授权信息，并换取authorizer_access_token和authorizer_refresh_token。
+	 * 授权码的获取，需要在用户在第三方平台授权页中完成授权流程后，在回调URI中通过URL参数提供给第三方平台方。
+	 * 请注意，由于现在公众号或小程序可以自定义选择部分权限授权给第三方平台，因此第三方平台开发者需要通过该接口来获取公众号或小程序具体授权了哪些权限，
+	 * 而不是简单地认为自己声明的权限就是公众号或小程序授权的权限。
+	 * <p>
+	 * 接口调用请求说明
+	 * http请求方式: POST（请使用https协议）
+	 * https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=xxxx
+	 * POST数据示例:
+	 * {
+	 * "component_appid":"appid_value" ,
+	 * "authorization_code": "auth_code_value"
+	 * }
+	 *
+	 * @return
+	 */
+	@Override
+	public Result authorizer() {
+		
+		Object authCodeObj = redisTemplate.getString(AUTH_CODE_KEY);
+		if(authCodeObj == null){
+			return Result.fail();
+		}
+		
+		WxOpenAuthCodeQuery authCodeQuery = new WxOpenAuthCodeQuery();
+		authCodeQuery.setComponent_appid(configStorage.getAppId());
+		authCodeQuery.setAuthorization_code(authCodeObj.toString());
+		
+		String json = "";
+		
+		try {
+			json = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_QUERY_AUTH_URL, queryComponentAccessToken()), authCodeQuery.toJson());
+		} catch (WxErrorException e) {
+			logger.error(e.toString(), e);
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+		}
+		
+		if(StringUtils.isEmpty(json)){
+			logger.error("使用授权码换取授权公众号或小程序的授权信息失败.");
+			return Result.fail();
+		}
+		
+		WxOpenAuthCodeResult authCodeResult = WxOpenAuthCodeResult.fromJson(json);
+		logger.info("使用授权码换取授权公众号或小程序的授权信息，URL:{}, \nparams:{}, \nrespJson:{}, \nObject: {} ", API_QUERY_AUTH_URL, authCodeQuery.toJson(), json, authCodeResult);
+		
+		//save to redis
+		
+		
+		return Result.success();
+	}
+	
 }

@@ -1,6 +1,7 @@
 package shop.leshare.weixin.mp.service;
 
 import me.chanjar.weixin.common.exception.WxErrorException;
+import shop.leshare.weixin.mp.bean.Result;
 import shop.leshare.weixin.mp.bean.WxOpenVerifyMessage;
 
 import java.io.IOException;
@@ -60,4 +61,29 @@ public interface WxOpenService {
 	 * @return
 	 */
 	String queryPreAuthCode(String componentAccessToken);
+	
+	/**
+	 * 保存auth_code
+	 * @param authCode
+	 * @param expiresIn
+	 */
+	Result saveAuthCode(String authCode, long expiresIn);
+	
+	/**
+	 * 该API用于使用授权码换取授权公众号或小程序的授权信息，并换取authorizer_access_token和authorizer_refresh_token。
+	 * 授权码的获取，需要在用户在第三方平台授权页中完成授权流程后，在回调URI中通过URL参数提供给第三方平台方。
+	 * 请注意，由于现在公众号或小程序可以自定义选择部分权限授权给第三方平台，因此第三方平台开发者需要通过该接口来获取公众号或小程序具体授权了哪些权限，
+	 * 而不是简单地认为自己声明的权限就是公众号或小程序授权的权限。
+	 *
+	 * 接口调用请求说明
+	 * http请求方式: POST（请使用https协议）
+	 * https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=xxxx
+	 * POST数据示例:
+	 * {
+	 *   "component_appid":"appid_value" ,
+	 *   "authorization_code": "auth_code_value"
+	 * }
+	 * @return
+	 */
+	Result authorizer();
 }
