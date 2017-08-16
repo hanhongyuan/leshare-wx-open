@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import shop.leshare.weixin.mp.bean.*;
 import shop.leshare.weixin.mp.manage.RedisStringManage;
@@ -34,7 +35,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 	private Logger logger = LogManager.getLogger(WxOpenServiceImpl.class);
 	
 	@Autowired
-	private RedisStringManage redisTemplate;
+	private RedisStringManage redisStringManage;
 	
 	@Autowired
 	private WxMpConfigStorage configStorage;
@@ -45,11 +46,14 @@ public class WxOpenServiceImpl implements WxOpenService{
 	private static final String API_COMPONENT_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
 	private static final String API_CREATE_PREAUTHCODE_URL = "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s";
 	private static final String API_QUERY_AUTH_URL = "https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=%s";
+	private static final String API_AUTHORIZER_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=%s";
 	
 	private static final String COMPONENT_VERIFY_TICKET_KEY = "COMPONENT_VERIFY_TICKET";
 	private static final String COMPONENT_ACCESS_TOKEN_KEY = "COMPONENT_ACCESS_TOKEN";
 	private static final String PRE_AUTH_CODE_KEY = "PRE_AUTH_CODE";
 	private static final String AUTH_CODE_KEY = "AUTH_CODE";
+	private static final String AUTHORIZER_ACCESS_TOKEN_KEY = "AUTHORIZER_ACCESS_TOKEN_KEY";
+	private static final String AUTHORIZER_REFRESH_TOKEN_KEY = "AUTHORIZER_REFRESH_TOKEN_KEY";
 	
 	/**
 	 * 处理微信服务器推送的component_verify_ticket, 保存数据到redis中
@@ -90,7 +94,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 			return ;
 		}
 		
-		redisTemplate.addString(COMPONENT_VERIFY_TICKET_KEY, verifyMessage.getComponentVerifyTicket());
+		redisStringManage.addString(COMPONENT_VERIFY_TICKET_KEY, verifyMessage.getComponentVerifyTicket());
 		
 		logger.info("保存微信服务器推送的component_verify_ticket到redis中: {}", verifyMessage);
 	}
@@ -114,14 +118,14 @@ public class WxOpenServiceImpl implements WxOpenService{
 	public String queryComponentAccessToken() {
 		
 		//get component_access_token from redis
-		Object componentAccessTokenObj = redisTemplate.getString(COMPONENT_ACCESS_TOKEN_KEY);
+		Object componentAccessTokenObj = redisStringManage.getString(COMPONENT_ACCESS_TOKEN_KEY);
 		
 		if(componentAccessTokenObj != null){
 			logger.info("query component_access_token from redis: {} ", componentAccessTokenObj.toString());
 			return componentAccessTokenObj.toString();
 		}
 		
-		Object componentVerifyTicket = redisTemplate.getString(COMPONENT_VERIFY_TICKET_KEY);
+		Object componentVerifyTicket = redisStringManage.getString(COMPONENT_VERIFY_TICKET_KEY);
 		
 		if(componentVerifyTicket == null) return "";
 		
@@ -138,7 +142,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 			
 			//save component access token to redis with 6000s
 			if(!StringUtils.isEmpty(accessTokenResult.getComponent_access_token())){
-				redisTemplate.addString(COMPONENT_ACCESS_TOKEN_KEY, 6000L, accessTokenResult.getComponent_access_token());
+				redisStringManage.addString(COMPONENT_ACCESS_TOKEN_KEY, 6000L, accessTokenResult.getComponent_access_token());
 				logger.info("save component access token to redis with 6000s, componentAccessToken={}", accessTokenResult.getComponent_access_token());
 			}
 			
@@ -166,7 +170,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * @return
 	 */
 	@Override
-	public String queryPreAuthCode(String componentAccessToken){
+	public String queryPreAuthCode(String componentAccessToken) throws WxErrorException {
 		
 		WxOpenPreAuthCodeQuery appidQuery = new WxOpenPreAuthCodeQuery();
 		appidQuery.setComponent_appid(configStorage.getAppId());
@@ -174,8 +178,6 @@ public class WxOpenServiceImpl implements WxOpenService{
 		String preAuthCodeJson = null;
 		try {
 			preAuthCodeJson = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_CREATE_PREAUTHCODE_URL, componentAccessToken), appidQuery.toJson());
-		} catch (WxErrorException e) {
-			logger.error(e.toString(), e);
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}
@@ -194,7 +196,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		}
 		
 		//save preAuthCode to redis
-		redisTemplate.addString(PRE_AUTH_CODE_KEY, preAuthCodeResult.getExpires_in(), preAuthCodeResult.getPre_auth_code());
+		redisStringManage.addString(PRE_AUTH_CODE_KEY, preAuthCodeResult.getExpires_in(), preAuthCodeResult.getPre_auth_code());
 		
 		return preAuthCodeResult.getPre_auth_code();
 	}
@@ -213,7 +215,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		}
 		
 		//save to redis
-		redisTemplate.addString(AUTH_CODE_KEY, expiresIn, authCode);
+		redisStringManage.addString(AUTH_CODE_KEY, expiresIn, authCode);
 		
 		return Result.success();
 	}
@@ -236,9 +238,9 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * @return
 	 */
 	@Override
-	public Result authorizer() {
+	public Result authorizer() throws WxErrorException {
 		
-		Object authCodeObj = redisTemplate.getString(AUTH_CODE_KEY);
+		Object authCodeObj = redisStringManage.getString(AUTH_CODE_KEY);
 		if(authCodeObj == null){
 			return Result.fail();
 		}
@@ -251,8 +253,6 @@ public class WxOpenServiceImpl implements WxOpenService{
 		
 		try {
 			json = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_QUERY_AUTH_URL, queryComponentAccessToken()), authCodeQuery.toJson());
-		} catch (WxErrorException e) {
-			logger.error(e.toString(), e);
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}
@@ -266,9 +266,87 @@ public class WxOpenServiceImpl implements WxOpenService{
 		logger.info("使用授权码换取授权公众号或小程序的授权信息，URL:{}, \nparams:{}, \nrespJson:{}, \nObject: {} ", API_QUERY_AUTH_URL, authCodeQuery.toJson(), json, authCodeResult);
 		
 		//save to redis
-		
+		redisStringManage.addString(authCodeResult.getAuthorization_info().getAuthorizer_appid() + AUTHORIZER_ACCESS_TOKEN_KEY, 6000L,
+				authCodeResult.getAuthorization_info().getAuthorizer_access_token());
+		redisStringManage.addString(authCodeResult.getAuthorization_info().getAuthorizer_appid() + AUTHORIZER_REFRESH_TOKEN_KEY,
+				authCodeResult.getAuthorization_info().getExpires_in(),
+				authCodeResult.getAuthorization_info().getAuthorizer_access_token());
 		
 		return Result.success();
 	}
 	
+	/**
+	 * 检查目前平台内全部已授权的公众号/小程序的授权码
+	 * @return
+	 */
+	public Result checkAllAccessToken(){
+		
+		//找到目前全部的APP_ID
+		
+		//确认access_token是否过期
+		
+		//已经过期的用刷新码重新获取
+		
+		return Result.success();
+	}
+	
+	/**
+	 * 该API用于在授权方令牌（authorizer_access_token）失效时，可用刷新令牌（authorizer_refresh_token）获取新的令牌。
+	 * 接口调用请求说明
+	 * http请求方式: POST（请使用https协议）
+	 * https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token=xxxxx
+	 *
+	 * POST数据示例:
+	 * {
+	 *   "component_appid":"appid_value",
+	 *   "authorizer_appid":"auth_appid_value",
+	 *   "authorizer_refresh_token":"refresh_token_value",
+	 * }
+	 *
+	 * @param appId
+	 * @return
+	 */
+	public Result refreshAccessToken(String appId) throws WxErrorException {
+	
+		//从redis读取authorizer_refresh_token
+		Object refreshTokenObj = redisStringManage.getString(appId + AUTHORIZER_REFRESH_TOKEN_KEY);
+		if(refreshTokenObj == null){
+			logger.error("refresh_token is expired. appid:{}", appId);
+			return Result.fail();
+		}
+		
+		WxOpenRefreshTokenQuery refreshTokenQuery = new WxOpenRefreshTokenQuery();
+		refreshTokenQuery.setComponent_appid(configStorage.getAppId());
+		refreshTokenQuery.setAuthorizer_appid(appId);
+		refreshTokenQuery.setAuthorizer_refresh_token(refreshTokenObj.toString());
+		
+		String json = "";
+		
+		try {
+			json = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_AUTHORIZER_TOKEN_URL, queryComponentAccessToken()), refreshTokenQuery.toJson());
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+		}
+		
+		if(StringUtils.isEmpty(json)){
+			logger.error("获取新的令牌失败, appid:{}", appId);
+			return Result.fail();
+		}
+		
+		WxOpenRefreshTokenResult refreshTokenResult = WxOpenRefreshTokenResult.fromJson(json);
+		
+		//save to redis
+		if(!StringUtils.isEmpty(refreshTokenResult.getAuthorizer_access_token())){
+			redisStringManage.addString(appId + AUTHORIZER_ACCESS_TOKEN_KEY, 6000L,
+					refreshTokenResult.getAuthorizer_access_token());
+		}
+		
+		if(!StringUtils.isEmpty(refreshTokenResult.getAuthorizer_refresh_token())){
+			redisStringManage.addString(appId + AUTHORIZER_REFRESH_TOKEN_KEY,
+					refreshTokenResult.getExpires_in(),
+					refreshTokenResult.getAuthorizer_refresh_token());
+		}
+		
+		return Result.success();
+	}
 }

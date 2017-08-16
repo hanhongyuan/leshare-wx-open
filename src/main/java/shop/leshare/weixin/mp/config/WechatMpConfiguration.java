@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import shop.leshare.weixin.mp.handler.*;
 
 /**
@@ -22,6 +23,7 @@ import shop.leshare.weixin.mp.handler.*;
  * @author Binary Wang(https://github.com/binarywang)
  */
 @Configuration
+@EnableScheduling
 @ConditionalOnClass(WxMpService.class)
 @EnableConfigurationProperties(WechatMpProperties.class)
 public class WechatMpConfiguration {

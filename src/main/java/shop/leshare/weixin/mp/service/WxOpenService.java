@@ -60,7 +60,7 @@ public interface WxOpenService {
 	 * @param componentAccessToken
 	 * @return
 	 */
-	String queryPreAuthCode(String componentAccessToken);
+	String queryPreAuthCode(String componentAccessToken) throws WxErrorException;
 	
 	/**
 	 * 保存auth_code
@@ -85,5 +85,5 @@ public interface WxOpenService {
 	 * }
 	 * @return
 	 */
-	Result authorizer();
+	Result authorizer() throws WxErrorException;
 }
