@@ -1,5 +1,6 @@
 package shop.leshare.weixin.mp.controller;
 
+import me.chanjar.weixin.common.exception.WxErrorException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +38,7 @@ public class OpenController {
 	                                    @RequestParam(name = "encrypt_type",
 			                                    required = false) String encType,
 	                                    @RequestParam(name = "msg_signature",
-			                                    required = false) String msgSignature){
+			                                    required = false) String msgSignature) throws WxErrorException {
 		
 		logger.info("\n开放平台接收微信component_verify_ticket：[signature=[{}], encType=[{}], msgSignature=[{}],"
 						+ " timestamp=[{}], nonce=[{}], requestBody=[\n{}\n] ",
@@ -56,7 +57,7 @@ public class OpenController {
 	
 	@GetMapping("/auth_code")
 	public LeResponse<Result> openAuthCode(@RequestParam("auth_code") String authCode,
-	                               @RequestParam("expires_in") long expiresIn){
+	                               @RequestParam("expires_in") long expiresIn) throws WxErrorException {
 		
 		logger.info("开放平台接收用户授权码:{}, 过期时间:{}", authCode, expiresIn);
 		

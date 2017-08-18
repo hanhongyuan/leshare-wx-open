@@ -86,4 +86,28 @@ public interface WxOpenService {
 	 * @return
 	 */
 	Result authorizer() throws WxErrorException;
+	
+	/**
+	 * 检查目前平台内全部已授权的公众号/小程序的授权码
+	 * @return
+	 */
+	Result checkAllAccessToken() throws WxErrorException;
+	
+	/**
+	 * 该API用于在授权方令牌（authorizer_access_token）失效时，可用刷新令牌（authorizer_refresh_token）获取新的令牌。
+	 * 接口调用请求说明
+	 * http请求方式: POST（请使用https协议）
+	 * https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token=xxxxx
+	 *
+	 * POST数据示例:
+	 * {
+	 *   "component_appid":"appid_value",
+	 *   "authorizer_appid":"auth_appid_value",
+	 *   "authorizer_refresh_token":"refresh_token_value",
+	 * }
+	 *
+	 * @param appId
+	 * @return
+	 */
+	Result refreshAccessToken(String appId) throws WxErrorException;
 }

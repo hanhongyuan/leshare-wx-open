@@ -10,13 +10,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import shop.leshare.common.utils.EmptyCheckUtils;
 import shop.leshare.weixin.mp.bean.*;
 import shop.leshare.weixin.mp.manage.RedisStringManage;
+import shop.leshare.weixin.mp.mapper.WxOpenUserMapper;
 import shop.leshare.weixin.mp.service.WxOpenService;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * <p>Title: shop.leshare.weixin.mp.service.impl</p>
@@ -42,6 +44,9 @@ public class WxOpenServiceImpl implements WxOpenService{
 	
 	@Autowired
 	private WxMpService wxMpService;
+	
+	@Autowired
+	private WxOpenUserMapper wxOpenUserMapper;
 	
 	private static final String API_COMPONENT_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
 	private static final String API_CREATE_PREAUTHCODE_URL = "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s";
@@ -279,13 +284,21 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * 检查目前平台内全部已授权的公众号/小程序的授权码
 	 * @return
 	 */
-	public Result checkAllAccessToken(){
+	@Override
+	public Result checkAllAccessToken() throws WxErrorException {
 		
 		//找到目前全部的APP_ID
+		List<WxOpenUser> userList = wxOpenUserMapper.findUserList();
 		
-		//确认access_token是否过期
+		if(EmptyCheckUtils.isEmpty(userList)) return Result.success();
 		
-		//已经过期的用刷新码重新获取
+		for (WxOpenUser user : userList) {
+			//确认access_token是否过期
+			if(redisStringManage.getString(user.getApp_id() + AUTHORIZER_ACCESS_TOKEN_KEY) == null){
+				//已经过期的用刷新码重新获取
+				this.refreshAccessToken(user.getApp_id());
+			}
+		}
 		
 		return Result.success();
 	}
@@ -306,6 +319,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * @param appId
 	 * @return
 	 */
+	@Override
 	public Result refreshAccessToken(String appId) throws WxErrorException {
 	
 		//从redis读取authorizer_refresh_token
