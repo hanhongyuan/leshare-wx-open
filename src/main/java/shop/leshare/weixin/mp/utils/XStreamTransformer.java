@@ -2,8 +2,7 @@ package shop.leshare.weixin.mp.utils;
 
 import com.thoughtworks.xstream.XStream;
 import me.chanjar.weixin.common.util.xml.XStreamInitializer;
-import me.chanjar.weixin.mp.bean.message.*;
-import shop.leshare.weixin.mp.bean.WxOpenVerifyMessage;
+import shop.leshare.weixin.mp.bean.wx.WxOpenVerifyMessage;
 
 import java.io.InputStream;
 import java.util.*;

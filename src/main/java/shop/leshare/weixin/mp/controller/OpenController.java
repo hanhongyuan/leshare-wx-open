@@ -6,8 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import shop.leshare.weixin.mp.bean.LeResponse;
-import shop.leshare.weixin.mp.bean.Result;
+import shop.leshare.common.entity.LeResponse;
+import shop.leshare.common.entity.Result;
 import shop.leshare.weixin.mp.service.WxOpenService;
 
 /**
@@ -57,7 +57,7 @@ public class OpenController {
 	
 	@GetMapping("/auth_code")
 	public LeResponse<Result> openAuthCode(@RequestParam("auth_code") String authCode,
-	                               @RequestParam("expires_in") long expiresIn) throws WxErrorException {
+	                                       @RequestParam("expires_in") long expiresIn) throws WxErrorException {
 		
 		logger.info("开放平台接收用户授权码:{}, 过期时间:{}", authCode, expiresIn);
 		

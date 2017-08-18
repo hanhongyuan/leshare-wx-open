@@ -1,8 +1,7 @@
 package shop.leshare.weixin.mp.service;
 
 import me.chanjar.weixin.common.exception.WxErrorException;
-import shop.leshare.weixin.mp.bean.Result;
-import shop.leshare.weixin.mp.bean.WxOpenVerifyMessage;
+import shop.leshare.common.entity.Result;
 
 import java.io.IOException;
 
@@ -86,6 +85,19 @@ public interface WxOpenService {
 	 * @return
 	 */
 	Result authorizer() throws WxErrorException;
+	
+	/**
+	 * 获取授权方的帐号基本信息
+	 *
+	 * 接口调用请求说明
+	 * http请求方式: POST（请使用https协议）
+	 * https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=xxxx
+	 *
+	 * @param appId
+	 * @return
+	 * @throws WxErrorException
+	 */
+	Result saveUserInfo(String appId) throws WxErrorException;
 	
 	/**
 	 * 检查目前平台内全部已授权的公众号/小程序的授权码

@@ -1,4 +1,4 @@
-package shop.leshare.weixin.mp.bean;
+package shop.leshare.weixin.mp.bean.wx;
 
 import java.io.Serializable;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author Lynn
  *         CreateTime：8/15/17
  */
-public class WxOpenAuthorizationInfo implements Serializable{
+public class WxOpenAuthCodeInfo implements Serializable{
 	
 	private static final long serialVersionUID = 3052721360426362865L;
 	private String authorizer_appid;

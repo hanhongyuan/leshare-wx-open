@@ -11,8 +11,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import shop.leshare.common.entity.Result;
 import shop.leshare.common.utils.EmptyCheckUtils;
-import shop.leshare.weixin.mp.bean.*;
+import shop.leshare.weixin.mp.bean.OpenUser;
+import shop.leshare.weixin.mp.bean.wx.*;
 import shop.leshare.weixin.mp.manage.RedisStringManage;
 import shop.leshare.weixin.mp.mapper.WxOpenUserMapper;
 import shop.leshare.weixin.mp.service.WxOpenService;
@@ -52,6 +54,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 	private static final String API_CREATE_PREAUTHCODE_URL = "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s";
 	private static final String API_QUERY_AUTH_URL = "https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=%s";
 	private static final String API_AUTHORIZER_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=%s";
+	private static final String API_GET_AUTHORIZER_INFO = "https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=%s";
 	
 	private static final String COMPONENT_VERIFY_TICKET_KEY = "COMPONENT_VERIFY_TICKET";
 	private static final String COMPONENT_ACCESS_TOKEN_KEY = "COMPONENT_ACCESS_TOKEN";
@@ -277,7 +280,87 @@ public class WxOpenServiceImpl implements WxOpenService{
 				authCodeResult.getAuthorization_info().getExpires_in(),
 				authCodeResult.getAuthorization_info().getAuthorizer_access_token());
 		
+		//save info to db
+		this.saveUserInfo(authCodeResult.getAuthorization_info().getAuthorizer_appid());
+		
 		return Result.success();
+	}
+	
+	/**
+	 * 获取授权方的帐号基本信息
+	 * <p>
+	 * 接口调用请求说明
+	 * http请求方式: POST（请使用https协议）
+	 * https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=xxxx
+	 *
+	 * @param appId
+	 * @return
+	 * @throws WxErrorException
+	 */
+	@Override
+	public Result saveUserInfo(String appId) throws WxErrorException {
+		
+		WxOpenAuthInfoQuery authInfoQuery = new WxOpenAuthInfoQuery();
+		authInfoQuery.setAuthorizer_appid(appId);
+		authInfoQuery.setComponent_appid(configStorage.getAppId());
+		
+		String json = "";
+		
+		try {
+			json = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_GET_AUTHORIZER_INFO, queryComponentAccessToken()), authInfoQuery.toJson());
+		} catch (IOException e) {
+			logger.error(e.toString(), e);
+		}
+		
+		if(StringUtils.isEmpty(json)){
+			logger.error("获取授权方的帐号基本信息失败.");
+			return Result.fail();
+		}
+		
+		logger.info("获取授权方的帐号基本信息, 返回json:{}", json);
+		
+		OpenUser user = this.authInfoResultToOpenUser(WxOpenAuthInfoResult.fromJson(json));
+		logger.info("获取授权方的帐号基本信息, 转为数据库实体对象:{}", user);
+		
+		wxOpenUserMapper.addUser(user);
+		logger.info("新增user数据to DB");
+		
+		return Result.success();
+	}
+	
+	/**
+	 * 将报文转化为数据库实体
+	 * @param authInfoResult
+	 * @return
+	 */
+	private OpenUser authInfoResultToOpenUser(WxOpenAuthInfoResult authInfoResult){
+		
+		WxOpenAuthInfoBase base = authInfoResult.getAuthorizer_info();
+		WxOpenAuthInfoDetail detail = authInfoResult.getAuthorization_info();
+		
+		OpenUser user = new OpenUser();
+		user.setApp_id(detail.getAuthorizer_appid());
+		user.setNick_name(base.getNick_name());
+		user.setHead_img(base.getHead_img());
+		user.setService_type_info(base.getService_type_info().getId());
+		user.setVerify_type_info(base.getVerify_type_info().getId());
+		user.setUser_name(base.getUser_name());
+		user.setSignature(base.getSignature());
+		user.setPrincipal_name(base.getPrincipal_name());
+		user.setAlias(base.getAlias());
+		
+		WxOpenAuthBusinessInfo b = base.getBusiness_info();
+		String businessInfo = StringUtils.join(b.getOpen_store(), "#",
+				b.getOpen_scan(), "#",
+				b.getOpen_pay(), "#",
+				b.getOpen_card(), "#",
+				b.getOpen_shake());
+		user.setBusiness_info(businessInfo);
+		user.setQrcode_url(base.getQrcode_url());
+		user.setFunc_info(detail.joinFuncInfo());
+		user.setIs_use(1);
+		
+		return user;
 	}
 	
 	/**
@@ -288,11 +371,11 @@ public class WxOpenServiceImpl implements WxOpenService{
 	public Result checkAllAccessToken() throws WxErrorException {
 		
 		//找到目前全部的APP_ID
-		List<WxOpenUser> userList = wxOpenUserMapper.findUserList();
+		List<OpenUser> userList = wxOpenUserMapper.findUserList();
 		
 		if(EmptyCheckUtils.isEmpty(userList)) return Result.success();
 		
-		for (WxOpenUser user : userList) {
+		for (OpenUser user : userList) {
 			//确认access_token是否过期
 			if(redisStringManage.getString(user.getApp_id() + AUTHORIZER_ACCESS_TOKEN_KEY) == null){
 				//已经过期的用刷新码重新获取

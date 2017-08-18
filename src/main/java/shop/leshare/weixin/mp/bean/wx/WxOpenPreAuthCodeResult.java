@@ -1,7 +1,6 @@
-package shop.leshare.weixin.mp.bean;
+package shop.leshare.weixin.mp.bean.wx;
 
 import me.chanjar.weixin.common.util.json.WxGsonBuilder;
-import me.chanjar.weixin.mp.util.json.WxMpGsonBuilder;
 
 import java.io.Serializable;
 

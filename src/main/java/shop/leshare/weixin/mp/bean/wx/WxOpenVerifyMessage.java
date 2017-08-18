@@ -1,4 +1,4 @@
-package shop.leshare.weixin.mp.bean;
+package shop.leshare.weixin.mp.bean.wx;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamConverter;

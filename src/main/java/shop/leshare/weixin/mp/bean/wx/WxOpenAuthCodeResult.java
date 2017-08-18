@@ -1,10 +1,8 @@
-package shop.leshare.weixin.mp.bean;
+package shop.leshare.weixin.mp.bean.wx;
 
-import com.google.common.collect.Lists;
 import me.chanjar.weixin.common.util.json.WxGsonBuilder;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * <p>Title: shop.leshare.weixin.mp.bean</p>
@@ -21,7 +19,7 @@ public class WxOpenAuthCodeResult implements Serializable{
 	
 	private static final long serialVersionUID = 817459069270576338L;
 	
-	private WxOpenAuthorizationInfo authorization_info;
+	private WxOpenAuthCodeInfo authorization_info;
 	
 	public String toJson(){
 		return WxGsonBuilder.create().toJson(this);
@@ -31,11 +29,11 @@ public class WxOpenAuthCodeResult implements Serializable{
 		return WxGsonBuilder.INSTANCE.create().fromJson(json, WxOpenAuthCodeResult.class);
 	}
 	
-	public WxOpenAuthorizationInfo getAuthorization_info() {
+	public WxOpenAuthCodeInfo getAuthorization_info() {
 		return authorization_info;
 	}
 	
-	public void setAuthorization_info(WxOpenAuthorizationInfo authorization_info) {
+	public void setAuthorization_info(WxOpenAuthCodeInfo authorization_info) {
 		this.authorization_info = authorization_info;
 	}
 	

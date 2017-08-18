@@ -4,7 +4,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
-import shop.leshare.weixin.mp.bean.WxOpenUser;
+import shop.leshare.weixin.mp.bean.OpenUser;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ public interface WxOpenUserMapper {
 	 * @return
 	 */
 	@Select("select * from wx_open_user where is_use=1")
-	List<WxOpenUser> findUserList();
+	List<OpenUser> findUserList();
 
 	@Insert("insert into wx_open_user(\n" +
 			"  app_id,\n" +
@@ -42,7 +42,6 @@ public interface WxOpenUserMapper {
 			"  alias,\n" +
 			"  business_info,\n" +
 			"  qrcode_url,\n" +
-			"  authorization_info,\n" +
 			"  func_info,\n" +
 			"  type,\n" +
 			"  is_use,\n" +
@@ -60,11 +59,10 @@ public interface WxOpenUserMapper {
 			"  #{alias},\n" +
 			"  #{business_info},\n" +
 			"  #{qrcode_url},\n" +
-			"  #{authorization_info},\n" +
 			"  #{func_info},\n" +
 			"  #{type},\n" +
 			"  #{is_use},\n" +
 			"  now(),\n" +
 			"  now())")
-	void addUser(WxOpenUser wxOpenUser);
+	void addUser(OpenUser wxOpenUser);
 }

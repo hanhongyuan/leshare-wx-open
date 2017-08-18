@@ -1,4 +1,4 @@
-package shop.leshare.weixin.mp.bean;
+package shop.leshare.weixin.mp.bean.wx;
 
 import me.chanjar.weixin.common.util.json.WxGsonBuilder;
 

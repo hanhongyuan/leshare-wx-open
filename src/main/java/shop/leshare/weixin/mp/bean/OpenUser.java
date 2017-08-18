@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Lynn
  *         CreateTime：8/18/17
  */
-public class WxOpenUser implements Serializable{
+public class OpenUser implements Serializable{
 	
 	private static final long serialVersionUID = 4401232916164818866L;
 	private int id;
@@ -28,7 +28,6 @@ public class WxOpenUser implements Serializable{
 	private String alias;//授权方公众号所设置的微信号，可能为空
 	private String business_info;//open_store:是否开通微信门店功能; open_scan:是否开通微信扫商品功能; open_pay:是否开通微信支付功能; open_card:是否开通微信卡券功能; open_shake:是否开通微信摇一摇功能
 	private String qrcode_url;//二维码图片的URL，开发者最好自行也进行保存
-	private String authorization_info;//授权信息
 	private String func_info;//公众号/小程序 授权给开发者的权限集列表
 	private int type;//0:公众号; 1:小程序
 	private int is_use;//是否授权, 0: 未授权; 1: 正在授权
@@ -131,14 +130,6 @@ public class WxOpenUser implements Serializable{
 		this.qrcode_url = qrcode_url;
 	}
 	
-	public String getAuthorization_info() {
-		return authorization_info;
-	}
-	
-	public void setAuthorization_info(String authorization_info) {
-		this.authorization_info = authorization_info;
-	}
-	
 	public String getFunc_info() {
 		return func_info;
 	}
@@ -181,7 +172,7 @@ public class WxOpenUser implements Serializable{
 	
 	@Override
 	public String toString() {
-		return "WxOpenUser{" +
+		return "OpenUser{" +
 				"id=" + id +
 				", app_id='" + app_id + '\'' +
 				", nick_name='" + nick_name + '\'' +
@@ -194,7 +185,6 @@ public class WxOpenUser implements Serializable{
 				", alias='" + alias + '\'' +
 				", business_info='" + business_info + '\'' +
 				", qrcode_url='" + qrcode_url + '\'' +
-				", authorization_info='" + authorization_info + '\'' +
 				", func_info='" + func_info + '\'' +
 				", type=" + type +
 				", is_use=" + is_use +

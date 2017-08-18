@@ -1,9 +1,9 @@
 package shop.leshare.weixin.mp;
 
-import shop.leshare.weixin.mp.bean.WxOpenAccessTokenQuery;
-import shop.leshare.weixin.mp.bean.WxOpenAccessTokenResult;
-import shop.leshare.weixin.mp.bean.WxOpenPreAuthCodeQuery;
-import shop.leshare.weixin.mp.bean.WxOpenPreAuthCodeResult;
+import shop.leshare.weixin.mp.bean.wx.WxOpenAccessTokenQuery;
+import shop.leshare.weixin.mp.bean.wx.WxOpenAccessTokenResult;
+import shop.leshare.weixin.mp.bean.wx.WxOpenPreAuthCodeQuery;
+import shop.leshare.weixin.mp.bean.wx.WxOpenPreAuthCodeResult;
 
 /**
  * <p>Title: shop.leshare.weixin.mp</p>
