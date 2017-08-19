@@ -27,6 +27,7 @@ public class WxOpenAuthInfoBase implements Serializable{
 	private String qrcode_url;
 	private int idc;
 	private String signature;
+	private WxOpenAuthMiniProgramInfo MiniProgramInfo;
 	
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
@@ -120,6 +121,14 @@ public class WxOpenAuthInfoBase implements Serializable{
 		this.signature = signature;
 	}
 	
+	public WxOpenAuthMiniProgramInfo getMiniProgramInfo() {
+		return MiniProgramInfo;
+	}
+	
+	public void setMiniProgramInfo(WxOpenAuthMiniProgramInfo miniProgramInfo) {
+		MiniProgramInfo = miniProgramInfo;
+	}
+	
 	@Override
 	public String toString() {
 		return "WxOpenAuthInfoBase{" +
@@ -134,6 +143,7 @@ public class WxOpenAuthInfoBase implements Serializable{
 				", qrcode_url='" + qrcode_url + '\'' +
 				", idc=" + idc +
 				", signature='" + signature + '\'' +
+				", MiniProgramInfo=" + MiniProgramInfo +
 				'}';
 	}
 }

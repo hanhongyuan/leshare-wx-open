@@ -45,6 +45,7 @@ public interface WxOpenUserMapper {
 			"  func_info,\n" +
 			"  type,\n" +
 			"  is_use,\n" +
+			"  idc,\n" +
 			"  create_time,\n" +
 			"  update_time)\n" +
 			"VALUES(\n" +
@@ -62,6 +63,7 @@ public interface WxOpenUserMapper {
 			"  #{func_info},\n" +
 			"  #{type},\n" +
 			"  #{is_use},\n" +
+			"  #{idc},\n" +
 			"  now(),\n" +
 			"  now())")
 	void addUser(OpenUser wxOpenUser);

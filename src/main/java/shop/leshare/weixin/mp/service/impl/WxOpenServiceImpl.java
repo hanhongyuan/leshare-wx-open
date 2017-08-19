@@ -344,6 +344,14 @@ public class WxOpenServiceImpl implements WxOpenService{
 		WxOpenAuthInfoDetail detail = authInfoResult.getAuthorization_info();
 		
 		OpenUser user = new OpenUser();
+		
+		WxOpenAuthMiniProgramInfo miniProgramInfo = base.getMiniProgramInfo();
+		if(miniProgramInfo == null){
+			user.setType(0);//公众号
+		}else {
+			user.setType(1);//小程序
+		}
+		
 		user.setApp_id(detail.getAuthorizer_appid());
 		user.setNick_name(base.getNick_name());
 		user.setHead_img(base.getHead_img());
@@ -353,6 +361,11 @@ public class WxOpenServiceImpl implements WxOpenService{
 		user.setSignature(base.getSignature());
 		user.setPrincipal_name(base.getPrincipal_name());
 		user.setAlias(base.getAlias());
+		user.setIdc(base.getIdc());
+		
+		if(miniProgramInfo != null){
+			user.setMiniprogram_info(base.getMiniProgramInfo().toJson());
+		}
 		
 		WxOpenAuthBusinessInfo b = base.getBusiness_info();
 		String businessInfo = StringUtils.join(b.getOpen_store(), "#",

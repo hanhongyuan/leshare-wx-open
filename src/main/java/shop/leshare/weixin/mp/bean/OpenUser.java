@@ -31,8 +31,10 @@ public class OpenUser implements Serializable{
 	private String func_info;//公众号/小程序 授权给开发者的权限集列表
 	private int type;//0:公众号; 1:小程序
 	private int is_use;//是否授权, 0: 未授权; 1: 正在授权
+	private int idc;//
 	private String create_time;
 	private String update_time;
+	private String miniprogram_info;//小程序信息， save as json format
 	
 	public int getId() {
 		return id;
@@ -154,6 +156,14 @@ public class OpenUser implements Serializable{
 		this.is_use = is_use;
 	}
 	
+	public int getIdc() {
+		return idc;
+	}
+	
+	public void setIdc(int idc) {
+		this.idc = idc;
+	}
+	
 	public String getCreate_time() {
 		return create_time;
 	}
@@ -168,6 +178,18 @@ public class OpenUser implements Serializable{
 	
 	public void setUpdate_time(String update_time) {
 		this.update_time = update_time;
+	}
+	
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+	
+	public String getMiniprogram_info() {
+		return miniprogram_info;
+	}
+	
+	public void setMiniprogram_info(String miniprogram_info) {
+		this.miniprogram_info = miniprogram_info;
 	}
 	
 	@Override
@@ -188,8 +210,10 @@ public class OpenUser implements Serializable{
 				", func_info='" + func_info + '\'' +
 				", type=" + type +
 				", is_use=" + is_use +
+				", idc=" + idc +
 				", create_time='" + create_time + '\'' +
 				", update_time='" + update_time + '\'' +
+				", miniprogram_info='" + miniprogram_info + '\'' +
 				'}';
 	}
 }
