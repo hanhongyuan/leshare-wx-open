@@ -2,6 +2,8 @@ package shop.leshare.weixin.mp.utils;
 
 import com.thoughtworks.xstream.XStream;
 import me.chanjar.weixin.common.util.xml.XStreamInitializer;
+import shop.leshare.weixin.mp.bean.wx.WxOpenAuthMessage;
+import shop.leshare.weixin.mp.bean.wx.WxOpenNotice;
 import shop.leshare.weixin.mp.bean.wx.WxOpenVerifyMessage;
 
 import java.io.InputStream;
@@ -12,6 +14,8 @@ public class XStreamTransformer {
 
   static {
     registerClass(WxOpenVerifyMessage.class);
+    registerClass(WxOpenNotice.class);
+    registerClass(WxOpenAuthMessage.class);
   }
 
   /**

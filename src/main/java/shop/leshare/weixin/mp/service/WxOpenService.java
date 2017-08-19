@@ -2,6 +2,8 @@ package shop.leshare.weixin.mp.service;
 
 import me.chanjar.weixin.common.exception.WxErrorException;
 import shop.leshare.common.entity.Result;
+import shop.leshare.weixin.mp.bean.wx.WxOpenNotice;
+import shop.leshare.weixin.mp.bean.wx.WxOpenVerifyMessage;
 
 import java.io.IOException;
 
@@ -19,16 +21,23 @@ import java.io.IOException;
 public interface WxOpenService {
 	
 	/**
-	 * 处理微信服务器推送的component_verify_ticket。
-	 * 出于安全考虑，在第三方平台创建审核通过后，微信服务器每隔10分钟会向第三方的消息接收地址推送一次component_verify_ticket，用于获取第三方平台接口调用凭据
+	 * 处理微信服务器推送的通知, 包括: component_verify_ticket信息、授权通知、更新授权通知、取消授权通知
 	 * @param requestBody
 	 * @param signature
 	 * @param timestamp
 	 * @param nonce
 	 * @param encType
 	 * @param msgSignature
+	 * @return
 	 */
-	void saveVerifyTicket(String requestBody, String signature, String timestamp, String nonce, String encType, String msgSignature);
+	String decryptNotice(String requestBody, String signature, String timestamp, String nonce, String encType, String msgSignature);
+	
+	/**
+	 * 处理微信服务器推送的 component_verify_ticket。
+	 * 出于安全考虑，在第三方平台创建审核通过后，微信服务器每隔10分钟会向第三方的消息接收地址推送一次component_verify_ticket，用于获取第三方平台接口调用凭据
+	 * @param verifyMessage
+	 */
+	Result saveVerifyTicket(WxOpenVerifyMessage verifyMessage);
 	
 	/**
 	 * 第三方平台component_access_token是第三方平台的下文中接口的调用凭据，也叫做令牌（component_access_token）。每个令牌是存在有效期（2小时）的，且令牌的调用不是无限制的，请第三方平台做好令牌的管理，在令牌快过期时（比如1小时50分）再进行刷新。
@@ -56,10 +65,9 @@ public interface WxOpenService {
 	 * {
 	 *   "component_appid":"appid_value"
 	 * }
-	 * @param componentAccessToken
 	 * @return
 	 */
-	String queryPreAuthCode(String componentAccessToken) throws WxErrorException;
+	String queryPreAuthCode() throws WxErrorException;
 	
 	/**
 	 * 保存auth_code

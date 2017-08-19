@@ -64,8 +64,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 	private static final String AUTHORIZER_REFRESH_TOKEN_KEY = "AUTHORIZER_REFRESH_TOKEN_KEY";
 	
 	/**
-	 * 处理微信服务器推送的component_verify_ticket, 保存数据到redis中
-	 * 出于安全考虑，在第三方平台创建审核通过后，微信服务器每隔10分钟会向第三方的消息接收地址推送一次component_verify_ticket，用于获取第三方平台接口调用凭据
+	 * 处理微信服务器推送的通知, 包括: component_verify_ticket信息、授权通知、更新授权通知、取消授权通知
 	 *
 	 * @param requestBody
 	 * @param signature
@@ -73,15 +72,16 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * @param nonce
 	 * @param encType
 	 * @param msgSignature
+	 * @return
 	 */
 	@Override
-	public void saveVerifyTicket(String requestBody, String signature, String timestamp, String nonce, String encType, String msgSignature) {
+	public String decryptNotice(String requestBody, String signature, String timestamp, String nonce, String encType, String msgSignature) {
 		
 		try {
 			SHA1.gen(configStorage.getToken(), timestamp, nonce).equals(signature);
 		} catch (Exception e) {
 			this.logger.error("Checking signature failed, and the reason is :" + e.getMessage());
-			return ;
+			return null;
 		}
 		
 		WxMpCryptUtil cryptUtil = new WxMpCryptUtil(configStorage);
@@ -89,22 +89,28 @@ public class WxOpenServiceImpl implements WxOpenService{
 		
 		logger.info("解密后内容: {}", respXml);
 		
-		WxOpenVerifyMessage verifyMessage = null;
-		
-		try {
-			verifyMessage = WxOpenVerifyMessage.fromXml(respXml);
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-		}
+		return respXml;
+	}
+	
+	/**
+	 * 处理微信服务器推送的component_verify_ticket, 保存数据到redis中
+	 * 出于安全考虑，在第三方平台创建审核通过后，微信服务器每隔10分钟会向第三方的消息接收地址推送一次component_verify_ticket，用于获取第三方平台接口调用凭据
+	 *
+	 * @Param verifyMessage
+	 */
+	@Override
+	public Result saveVerifyTicket(WxOpenVerifyMessage verifyMessage) {
 		
 		if(verifyMessage == null || StringUtils.isEmpty(verifyMessage.getComponentVerifyTicket())){
-			logger.error("component_verify_ticket解析失败, requestBody={}", requestBody);
-			return ;
+			logger.error("component_verify_ticket解析失败, verifyMessage={}", verifyMessage);
+			return Result.fail();
 		}
 		
 		redisStringManage.addString(COMPONENT_VERIFY_TICKET_KEY, verifyMessage.getComponentVerifyTicket());
 		
 		logger.info("保存微信服务器推送的component_verify_ticket到redis中: {}", verifyMessage);
+		
+		return Result.success();
 	}
 	
 	/**
@@ -174,18 +180,17 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * {
 	 *   "component_appid":"appid_value"
 	 * }
-	 * @param componentAccessToken
 	 * @return
 	 */
 	@Override
-	public String queryPreAuthCode(String componentAccessToken) throws WxErrorException {
+	public String queryPreAuthCode() throws WxErrorException {
 		
 		WxOpenPreAuthCodeQuery appidQuery = new WxOpenPreAuthCodeQuery();
 		appidQuery.setComponent_appid(configStorage.getAppId());
 		logger.info("请求pre_auth_code, 请求报文: {}", appidQuery.toJson());
 		String preAuthCodeJson = null;
 		try {
-			preAuthCodeJson = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_CREATE_PREAUTHCODE_URL, componentAccessToken), appidQuery.toJson());
+			preAuthCodeJson = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_CREATE_PREAUTHCODE_URL, this.queryComponentAccessToken()), appidQuery.toJson());
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}
@@ -204,7 +209,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		}
 		
 		//save preAuthCode to redis
-		redisStringManage.addString(PRE_AUTH_CODE_KEY, preAuthCodeResult.getExpires_in(), preAuthCodeResult.getPre_auth_code());
+//		redisStringManage.addString(PRE_AUTH_CODE_KEY, preAuthCodeResult.getExpires_in(), preAuthCodeResult.getPre_auth_code());
 		
 		return preAuthCodeResult.getPre_auth_code();
 	}

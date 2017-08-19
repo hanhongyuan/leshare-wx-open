@@ -22,6 +22,7 @@ import static org.junit.Assert.*;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class WxOpenServiceTest {
+	
 	@Test
 	public void saveUserInfo() throws Exception {
 		wxOpenService.saveUserInfo("wx36b9de83df162a4f");
