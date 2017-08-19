@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Binary Wang(https://github.com/binarywang)
  */
 @RestController
-@RequestMapping("/mp")
+@RequestMapping("/open/wx1199ca0caee10fb8/callback")
 public class MpController {
 	private final Logger logger = LogManager.getLogger(MpController.class);
 	

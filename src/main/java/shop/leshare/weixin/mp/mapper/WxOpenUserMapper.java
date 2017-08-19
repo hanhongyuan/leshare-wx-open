@@ -44,6 +44,7 @@ public interface WxOpenUserMapper {
 			"  type,\n" +
 			"  is_use,\n" +
 			"  idc,\n" +
+			"  miniprogram_info,\n" +
 			"  create_time,\n" +
 			"  update_time)\n" +
 			"VALUES(\n" +
@@ -62,6 +63,7 @@ public interface WxOpenUserMapper {
 			"  #{type},\n" +
 			"  #{is_use},\n" +
 			"  #{idc},\n" +
+			"  #{miniprogram_info},\n" +
 			"  now(),\n" +
 			"  now())")
 	void addUser(OpenUser wxOpenUser);

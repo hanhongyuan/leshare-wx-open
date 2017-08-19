@@ -391,9 +391,11 @@ public class WxOpenServiceImpl implements WxOpenService{
 		
 		if(EmptyCheckUtils.isEmpty(userList)) return Result.success();
 		
+		logger.info("共{}个用户", userList.size());
 		for (OpenUser user : userList) {
 			//确认access_token是否过期
 			if(redisStringManage.getString(user.getApp_id() + AUTHORIZER_ACCESS_TOKEN_KEY) == null){
+				logger.info("用户:{}Access_Token过期，重新请求.", user.getApp_id());
 				//已经过期的用刷新码重新获取
 				this.refreshAccessToken(user.getApp_id());
 			}
@@ -450,11 +452,13 @@ public class WxOpenServiceImpl implements WxOpenService{
 		
 		//save to redis
 		if(!StringUtils.isEmpty(refreshTokenResult.getAuthorizer_access_token())){
+			logger.info("用户:{}重新获取Access_Token成功", appId);
 			redisStringManage.addString(appId + AUTHORIZER_ACCESS_TOKEN_KEY, 6000L,
 					refreshTokenResult.getAuthorizer_access_token());
 		}
 		
 		if(!StringUtils.isEmpty(refreshTokenResult.getAuthorizer_refresh_token())){
+			logger.info("用户:{}重新获取Refresh_Access_Token成功", appId);
 			redisStringManage.addString(appId + AUTHORIZER_REFRESH_TOKEN_KEY,
 					refreshTokenResult.getExpires_in(),
 					refreshTokenResult.getAuthorizer_refresh_token());
