@@ -92,7 +92,7 @@ public interface WxOpenService {
 	 * }
 	 * @return
 	 */
-	Result authorizer() throws WxErrorException;
+	Result authorizer(String authCode) throws WxErrorException;
 	
 	/**
 	 * 获取授权方的帐号基本信息
@@ -130,4 +130,11 @@ public interface WxOpenService {
 	 * @return
 	 */
 	Result refreshAccessToken(String appId) throws WxErrorException;
+	
+	/**
+	 * 用户取消授权
+	 * @param appId
+	 * @return
+	 */
+	Result unauthorized(String appId);
 }

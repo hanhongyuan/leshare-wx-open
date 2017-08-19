@@ -1,8 +1,6 @@
 package shop.leshare.weixin.mp.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
 import shop.leshare.weixin.mp.bean.OpenUser;
 
@@ -67,4 +65,10 @@ public interface WxOpenUserMapper {
 			"  now(),\n" +
 			"  now())")
 	void addUser(OpenUser wxOpenUser);
+	
+	@Delete("delete from wx_open_user where app_id=#{appId}")
+	void deleteUser(String appId);
+	
+	@Update("update wx_open_user set is_use = 0 where app_id=#{appId}")
+	void disableUser(String appId);
 }

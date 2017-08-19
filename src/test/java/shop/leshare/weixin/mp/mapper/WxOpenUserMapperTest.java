@@ -9,6 +9,8 @@ import shop.leshare.weixin.mp.bean.OpenUser;
 
 import java.util.List;
 
+import static org.junit.Assert.*;
+
 /**
  * <p>Title: shop.leshare.weixin.mp.mapper</p>
  * <p/>
@@ -18,12 +20,11 @@ import java.util.List;
  * <p/>
  *
  * @author Lynn
- *         CreateTime：8/18/17
+ *         CreateTime：8/19/17
  */
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class OpenUserMapperTest {
+public class WxOpenUserMapperTest {
 	
 	@Autowired
 	private WxOpenUserMapper wxOpenUserMapper;
@@ -35,7 +36,7 @@ public class OpenUserMapperTest {
 		for (OpenUser user : users) {
 			System.out.println(user);
 		}
-	
+		
 	}
 	
 	@Test
@@ -64,4 +65,15 @@ public class OpenUserMapperTest {
 		
 		return user;
 	}
+	
+	@Test
+	public void deleteUser() throws Exception {
+		wxOpenUserMapper.deleteUser("wx36b9de83df162a4f");
+	}
+	
+	@Test
+	public void disableUser() throws Exception {
+		wxOpenUserMapper.disableUser("wx36b9de83df162a4f");
+	}
+	
 }

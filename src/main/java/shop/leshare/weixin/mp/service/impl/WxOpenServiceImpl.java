@@ -251,16 +251,11 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * @return
 	 */
 	@Override
-	public Result authorizer() throws WxErrorException {
-		
-		Object authCodeObj = redisStringManage.getString(AUTH_CODE_KEY);
-		if(authCodeObj == null){
-			return Result.fail();
-		}
+	public Result authorizer(String authCode) throws WxErrorException {
 		
 		WxOpenAuthCodeQuery authCodeQuery = new WxOpenAuthCodeQuery();
 		authCodeQuery.setComponent_appid(configStorage.getAppId());
-		authCodeQuery.setAuthorization_code(authCodeObj.toString());
+		authCodeQuery.setAuthorization_code(authCode);
 		
 		String json = "";
 		
@@ -323,6 +318,9 @@ public class WxOpenServiceImpl implements WxOpenService{
 		}
 		
 		logger.info("获取授权方的帐号基本信息, 返回json:{}", json);
+		
+		//先删除数据
+		wxOpenUserMapper.deleteUser(appId);
 		
 		OpenUser user = this.authInfoResultToOpenUser(WxOpenAuthInfoResult.fromJson(json));
 		logger.info("获取授权方的帐号基本信息, 转为数据库实体对象:{}", user);
@@ -461,6 +459,21 @@ public class WxOpenServiceImpl implements WxOpenService{
 					refreshTokenResult.getExpires_in(),
 					refreshTokenResult.getAuthorizer_refresh_token());
 		}
+		
+		return Result.success();
+	}
+	
+	/**
+	 * 用户取消授权
+	 *
+	 * @param appId
+	 * @return
+	 */
+	@Override
+	public Result unauthorized(String appId) {
+		
+		logger.info("用户:{} 取消第三方平台授权", appId);
+		wxOpenUserMapper.disableUser(appId);
 		
 		return Result.success();
 	}

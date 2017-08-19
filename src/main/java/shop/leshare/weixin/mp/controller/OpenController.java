@@ -62,19 +62,24 @@ public class OpenController {
 		}else if(StringUtils.equalsIgnoreCase(notice.getTypeInfo(), "unauthorized")){//取消授权通知
 			WxOpenAuthMessage authMessage = WxOpenAuthMessage.fromXml(respXml);
 			logger.info("取消授权通知, data:{}", authMessage);
+			wxOpenService.unauthorized(authMessage.getAppId());
+			
 		}else if(StringUtils.equalsIgnoreCase(notice.getTypeInfo(), "authorized")){//授权成功通知
 			
 			WxOpenAuthMessage authMessage = WxOpenAuthMessage.fromXml(respXml);
 			logger.info("授权成功通知, data:{}", authMessage);
 			long expiresIn = (Long.parseLong(authMessage.getAuthorizationCodeExpiredTime()) * 1000 - System.currentTimeMillis())/1000;
-			Result result = wxOpenService.saveAuthCode(authMessage.getAuthorizationCode(), expiresIn);
-			if(result.check()){
-				wxOpenService.authorizer();
+			if(expiresIn > 0){
+				wxOpenService.authorizer(authMessage.getAuthorizationCode());
 			}
 			
 		}else if(StringUtils.equalsIgnoreCase(notice.getTypeInfo(), "updateauthorized")){//授权更新通知
 			WxOpenAuthMessage authMessage = WxOpenAuthMessage.fromXml(respXml);
 			logger.info("授权更新通知, data:{}", authMessage);
+			long expiresIn = (Long.parseLong(authMessage.getAuthorizationCodeExpiredTime()) * 1000 - System.currentTimeMillis())/1000;
+			if(expiresIn > 0){
+				wxOpenService.authorizer(authMessage.getAuthorizationCode());
+			}
 		}
 		
 		return "success";
@@ -102,7 +107,7 @@ public class OpenController {
 		
 		Result result = wxOpenService.saveAuthCode(authCode, expiresIn);
 		if(result.check()){
-			result = wxOpenService.authorizer();
+			result = wxOpenService.authorizer(authCode);
 		}
 		
 		return LeResponse.create(0, result);
