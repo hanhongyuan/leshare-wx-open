@@ -69,6 +69,6 @@ public interface WxOpenUserMapper {
 	@Delete("delete from wx_open_user where app_id=#{appId}")
 	void deleteUser(String appId);
 	
-	@Update("update wx_open_user set is_use = 0 where app_id=#{appId}")
+	@Update("update wx_open_user set is_use = 0, update_time=now() where app_id=#{appId}")
 	void disableUser(String appId);
 }

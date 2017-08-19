@@ -62,7 +62,7 @@ public class OpenController {
 		}else if(StringUtils.equalsIgnoreCase(notice.getTypeInfo(), "unauthorized")){//取消授权通知
 			WxOpenAuthMessage authMessage = WxOpenAuthMessage.fromXml(respXml);
 			logger.info("取消授权通知, data:{}", authMessage);
-			wxOpenService.unauthorized(authMessage.getAppId());
+			wxOpenService.unauthorized(authMessage.getAuthorizerAppid());
 			
 		}else if(StringUtils.equalsIgnoreCase(notice.getTypeInfo(), "authorized")){//授权成功通知
 			
