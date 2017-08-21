@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class WxMenuController implements WxMpMenuService {
 
     @Autowired
-    private WxMpService wxService;
+    private WxMpService wxMpService;
 
     /**
      * <pre>
@@ -40,7 +40,7 @@ public class WxMenuController implements WxMpMenuService {
     @Override
     @PostMapping("/create")
     public String menuCreate(@RequestBody WxMenu menu) throws WxErrorException {
-        return this.wxService.getMenuService().menuCreate(menu);
+        return this.wxMpService.getMenuService().menuCreate(menu);
     }
 
     @GetMapping("/create")
@@ -84,7 +84,7 @@ public class WxMenuController implements WxMpMenuService {
         button3.getSubButtons().add(button32);
         button3.getSubButtons().add(button33);
 
-        return this.wxService.getMenuService().menuCreate(menu);
+        return this.wxMpService.getMenuService().menuCreate(menu);
     }
 
     /**
@@ -101,7 +101,7 @@ public class WxMenuController implements WxMpMenuService {
     @Override
     @GetMapping("/create/{json}")
     public String menuCreate(@PathVariable String json) throws WxErrorException {
-        return this.wxService.getMenuService().menuCreate(json);
+        return this.wxMpService.getMenuService().menuCreate(json);
     }
 
     /**
@@ -113,7 +113,7 @@ public class WxMenuController implements WxMpMenuService {
     @Override
     @GetMapping("/delete")
     public void menuDelete() throws WxErrorException {
-        this.wxService.getMenuService().menuDelete();
+        this.wxMpService.getMenuService().menuDelete();
     }
 
     /**
@@ -127,7 +127,7 @@ public class WxMenuController implements WxMpMenuService {
     @Override
     @GetMapping("/delete/{menuId}")
     public void menuDelete(@PathVariable String menuId) throws WxErrorException {
-        this.wxService.getMenuService().menuDelete(menuId);
+        this.wxMpService.getMenuService().menuDelete(menuId);
     }
 
     /**
@@ -139,7 +139,7 @@ public class WxMenuController implements WxMpMenuService {
     @Override
     @GetMapping("/get")
     public WxMpMenu menuGet() throws WxErrorException {
-        return this.wxService.getMenuService().menuGet();
+        return this.wxMpService.getMenuService().menuGet();
     }
 
     /**
@@ -153,7 +153,7 @@ public class WxMenuController implements WxMpMenuService {
     @Override
     @GetMapping("/menuTryMatch/{userid}")
     public WxMenu menuTryMatch(@PathVariable String userid) throws WxErrorException {
-        return this.wxService.getMenuService().menuTryMatch(userid);
+        return this.wxMpService.getMenuService().menuTryMatch(userid);
     }
 
     /**
@@ -174,6 +174,6 @@ public class WxMenuController implements WxMpMenuService {
     @Override
     @GetMapping("/getSelfMenuInfo")
     public WxMpGetSelfMenuInfoResult getSelfMenuInfo() throws WxErrorException {
-        return this.wxService.getMenuService().getSelfMenuInfo();
+        return this.wxMpService.getMenuService().getSelfMenuInfo();
     }
 }

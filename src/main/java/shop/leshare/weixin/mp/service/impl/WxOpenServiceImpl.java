@@ -45,7 +45,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 	private WxMpConfigStorage configStorage;
 	
 	@Autowired
-	private WxMpService wxMpService;
+	private WxOpenServiceApacheHttpClientImpl httpClient;
 	
 	@Autowired
 	private WxOpenUserMapper wxOpenUserMapper;
@@ -149,7 +149,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		accessTokenQuery.setComponent_verify_ticket(componentVerifyTicket.toString());
 		
 		try {
-			String jsonResp = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(API_COMPONENT_TOKEN_URL, accessTokenQuery.toJson());
+			String jsonResp = SimplePostRequestExecutor.create(httpClient.getRequestHttp()).execute(API_COMPONENT_TOKEN_URL, accessTokenQuery.toJson());
 			
 			WxOpenAccessTokenResult accessTokenResult = WxOpenAccessTokenResult.fromJson(jsonResp);
 			logger.info("获取第三方平台component_access_token: {}", accessTokenResult);
@@ -190,7 +190,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		logger.info("请求pre_auth_code, 请求报文: {}", appidQuery.toJson());
 		String preAuthCodeJson = null;
 		try {
-			preAuthCodeJson = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_CREATE_PREAUTHCODE_URL, this.queryComponentAccessToken()), appidQuery.toJson());
+			preAuthCodeJson = SimplePostRequestExecutor.create(httpClient.getRequestHttp()).execute(String.format(API_CREATE_PREAUTHCODE_URL, this.queryComponentAccessToken()), appidQuery.toJson());
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}
@@ -260,7 +260,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		String json = "";
 		
 		try {
-			json = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_QUERY_AUTH_URL, queryComponentAccessToken()), authCodeQuery.toJson());
+			json = SimplePostRequestExecutor.create(httpClient.getRequestHttp()).execute(String.format(API_QUERY_AUTH_URL, queryComponentAccessToken()), authCodeQuery.toJson());
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}
@@ -271,7 +271,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		}
 		
 		WxOpenAuthCodeResult authCodeResult = WxOpenAuthCodeResult.fromJson(json);
-		logger.info("使用授权码换取授权公众号或小程序的授权信息，URL:{}, \nparams:{}, \nrespJson:{}, \nObject: {} ", API_QUERY_AUTH_URL, authCodeQuery.toJson(), json, authCodeResult);
+		logger.info("使用授权码换取授权公众号或小程序的授权信息，URL:{}, \n参数:{}, \n返回的json:{}, \n对象: {} ", API_QUERY_AUTH_URL, authCodeQuery.toJson(), json, authCodeResult);
 		
 		//save to redis
 		redisStringManage.addString(authCodeResult.getAuthorization_info().getAuthorizer_appid() + AUTHORIZER_ACCESS_TOKEN_KEY, 6000L,
@@ -307,7 +307,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		String json = "";
 		
 		try {
-			json = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_GET_AUTHORIZER_INFO, queryComponentAccessToken()), authInfoQuery.toJson());
+			json = SimplePostRequestExecutor.create(httpClient.getRequestHttp()).execute(String.format(API_GET_AUTHORIZER_INFO, queryComponentAccessToken()), authInfoQuery.toJson());
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}
@@ -438,7 +438,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		String json = "";
 		
 		try {
-			json = SimplePostRequestExecutor.create(wxMpService.getRequestHttp()).execute(String.format(API_AUTHORIZER_TOKEN_URL, queryComponentAccessToken()), refreshTokenQuery.toJson());
+			json = SimplePostRequestExecutor.create(httpClient.getRequestHttp()).execute(String.format(API_AUTHORIZER_TOKEN_URL, queryComponentAccessToken()), refreshTokenQuery.toJson());
 		} catch (IOException e) {
 			logger.error(e.toString(), e);
 		}

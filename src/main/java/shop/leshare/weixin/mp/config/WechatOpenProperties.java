@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Binary Wang(https://github.com/binarywang)
  */
 @ConfigurationProperties(prefix = "wechat.open")
-public class WechatMpProperties {
+public class WechatOpenProperties {
     /**
      * 设置微信公众号的appid
      */

@@ -1,10 +1,9 @@
-package shop.leshare.weixin.mp.controller;
+package shop.leshare.weixin.mp.controller.mp;
 
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,15 +32,16 @@ public class MpController {
 		logger.info("\n接收到来自微信服务器的认证消息：[{}, {}, {}, {}]", signature,
 				timestamp, nonce, echostr);
 		
-		if (StringUtils.isAnyBlank(signature, timestamp, nonce, echostr)) {
-			throw new IllegalArgumentException("请求参数非法，请核实!");
-		}
+//		if (StringUtils.isAnyBlank(signature, timestamp, nonce, echostr)) {
+//			throw new IllegalArgumentException("请求参数非法，请核实!");
+//		}
+//
+//		if (this.wxMpService.checkSignature(timestamp, nonce, signature)) {
+//			return echostr;
+//		}
 		
-		if (this.wxMpService.checkSignature(timestamp, nonce, signature)) {
-			return echostr;
-		}
-		
-		return "非法请求";
+//		return "非法请求";
+		return echostr;
 	}
 	
 	@PostMapping(produces = "application/xml; charset=UTF-8")
@@ -58,37 +58,38 @@ public class MpController {
 						+ " timestamp=[{}], nonce=[{}], requestBody=[\n{}\n] ",
 				signature, encType, msgSignature, timestamp, nonce, requestBody);
 		
-		if (!this.wxMpService.checkSignature(timestamp, nonce, signature)) {
-			throw new IllegalArgumentException("非法请求，可能属于伪造的请求！");
-		}
+//		if (!this.wxMpService.checkSignature(timestamp, nonce, signature)) {
+//			throw new IllegalArgumentException("非法请求，可能属于伪造的请求！");
+//		}
+//
+//		String out = null;
+//		if (encType == null) {
+//			// 明文传输的消息
+//			WxMpXmlMessage inMessage = WxMpXmlMessage.fromXml(requestBody);
+//			WxMpXmlOutMessage outMessage = this.route(inMessage);
+//			if (outMessage == null) {
+//				return "";
+//			}
+//
+//			out = outMessage.toXml();
+//		} else if ("aes".equals(encType)) {
+//			// aes加密的消息
+//			WxMpXmlMessage inMessage = WxMpXmlMessage.fromEncryptedXml(
+//					requestBody, this.wxMpService.getWxMpConfigStorage(), timestamp,
+//					nonce, msgSignature);
+//			this.logger.debug("\n消息解密后内容为：\n{} ", inMessage.toString());
+//			WxMpXmlOutMessage outMessage = this.route(inMessage);
+//			if (outMessage == null) {
+//				return "";
+//			}
+//
+//			out = outMessage.toEncryptedXml(this.wxMpService.getWxMpConfigStorage());
+//		}
+//
+//		this.logger.debug("\n组装回复信息：{}", out);
 		
-		String out = null;
-		if (encType == null) {
-			// 明文传输的消息
-			WxMpXmlMessage inMessage = WxMpXmlMessage.fromXml(requestBody);
-			WxMpXmlOutMessage outMessage = this.route(inMessage);
-			if (outMessage == null) {
-				return "";
-			}
-			
-			out = outMessage.toXml();
-		} else if ("aes".equals(encType)) {
-			// aes加密的消息
-			WxMpXmlMessage inMessage = WxMpXmlMessage.fromEncryptedXml(
-					requestBody, this.wxMpService.getWxMpConfigStorage(), timestamp,
-					nonce, msgSignature);
-			this.logger.debug("\n消息解密后内容为：\n{} ", inMessage.toString());
-			WxMpXmlOutMessage outMessage = this.route(inMessage);
-			if (outMessage == null) {
-				return "";
-			}
-			
-			out = outMessage.toEncryptedXml(this.wxMpService.getWxMpConfigStorage());
-		}
-		
-		this.logger.debug("\n组装回复信息：{}", out);
-		
-		return out;
+//		return out;
+		return "";
 	}
 	
 	private WxMpXmlOutMessage route(WxMpXmlMessage message) {

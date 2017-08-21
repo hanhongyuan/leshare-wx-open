@@ -6,7 +6,6 @@ import me.chanjar.weixin.mp.api.WxMpConfigStorage;
 import me.chanjar.weixin.mp.api.WxMpInMemoryConfigStorage;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.api.impl.WxMpServiceApacheHttpClientImpl;
 import me.chanjar.weixin.mp.constant.WxMpEventConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -16,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import shop.leshare.weixin.mp.handler.*;
+import shop.leshare.weixin.mp.service.WxOpenService;
+import shop.leshare.weixin.mp.service.impl.WxOpenServiceApacheHttpClientImpl;
 
 /**
  * wechat mp configuration
@@ -25,7 +26,7 @@ import shop.leshare.weixin.mp.handler.*;
 @Configuration
 @EnableScheduling
 @ConditionalOnClass(WxMpService.class)
-@EnableConfigurationProperties(WechatMpProperties.class)
+@EnableConfigurationProperties(WechatOpenProperties.class)
 public class WechatMpConfiguration {
 	
     @Autowired
@@ -37,7 +38,7 @@ public class WechatMpConfiguration {
     @Autowired
     protected StoreCheckNotifyHandler storeCheckNotifyHandler;
     @Autowired
-    private WechatMpProperties properties;
+    private WechatOpenProperties properties;
     @Autowired
     private LocationHandler locationHandler;
     @Autowired
@@ -63,13 +64,18 @@ public class WechatMpConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public WxMpService wxMpService(WxMpConfigStorage configStorage) {
-//        WxMpService wxMpService = new me.chanjar.weixin.mp.api.impl.okhttp.WxMpServiceImpl();
-//        WxMpService wxMpService = new me.chanjar.weixin.mp.api.impl.jodd.WxMpServiceImpl();
-//        WxMpService wxMpService = new me.chanjar.weixin.mp.api.impl.apache.WxMpServiceImpl();
+    public WxMpService wxMpService() {
         WxMpService wxMpService = new me.chanjar.weixin.mp.api.impl.WxMpServiceImpl();
-        wxMpService.setWxMpConfigStorage(configStorage);
+        wxMpService.setWxMpConfigStorage(new WxMpInMemoryConfigStorage());
         return wxMpService;
+    }
+    
+    @Bean
+    @ConditionalOnMissingBean
+    public WxOpenServiceApacheHttpClientImpl wxOpenServiceApacheHttpClient(){
+    	WxOpenServiceApacheHttpClientImpl httpClient = new WxOpenServiceApacheHttpClientImpl();
+    	httpClient.initHttp();
+    	return httpClient;
     }
 
     @Bean

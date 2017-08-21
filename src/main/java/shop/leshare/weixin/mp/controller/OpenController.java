@@ -82,6 +82,10 @@ public class OpenController {
 			}
 		}
 		
+		//检测Access_Token是否过期
+		logger.info("授权码过期检查");
+		wxOpenService.checkAllAccessToken();
+		
 		return "success";
 	}
 	
