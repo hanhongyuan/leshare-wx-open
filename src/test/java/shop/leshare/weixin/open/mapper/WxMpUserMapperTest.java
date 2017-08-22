@@ -7,7 +7,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import shop.leshare.weixin.open.bean.MpUser;
+
+import java.util.List;
 
 /**
  * <p>Title: shop.leshare.weixin.open.mapper</p>
@@ -28,6 +32,13 @@ public class WxMpUserMapperTest {
 	private WxMpUserMapper wxMpUserMapper;
 	
 	@Test
+	public void findUser() throws Exception {
+	
+		MpUser mpUser = wxMpUserMapper.findUser("11111");
+		System.out.println(mpUser);
+	}
+	
+	@Test
 	public void addUser() throws Exception {
 		
 		WxMpUser user = new WxMpUser();
@@ -45,9 +56,7 @@ public class WxMpUserMapperTest {
 		user.setTagIds(null);
 		user.setGroupId(0);
 		
-		DateTime dt = new DateTime(user.getSubscribeTime() * 1000);
-		
-		wxMpUserMapper.addUser(user, "12345", dt.toString("yyyy-MM-dd HH:mm:ss"), StringUtils.join(user.getTagIds(), ","));
+		wxMpUserMapper.addUser(MpUser.fromWxUser(user, "12345"));
 	}
 	
 	@Test
@@ -55,4 +64,23 @@ public class WxMpUserMapperTest {
 		wxMpUserMapper.unsubscribeUser("11111");
 	}
 	
+	@Test
+	public void updateUser() throws Exception {
+		WxMpUser user = new WxMpUser();
+		user.setOpenId("11111");
+		user.setNickname("lynn");
+		user.setSex("nv");
+		user.setLanguage("CN");
+		user.setCity("FUZHOU");
+		user.setProvince("FUJIAN");
+		user.setCountry("CHINA");
+		user.setHeadImgUrl("hahaha");
+		user.setSubscribeTime(1382694957L);
+		user.setUnionId("12345");
+		user.setRemark("hahahah");
+		user.setTagIds(new Long[]{1L, 2L});
+		user.setGroupId(0);
+		
+		wxMpUserMapper.updateUser(MpUser.fromWxUser(user, "12345"));
+	}
 }

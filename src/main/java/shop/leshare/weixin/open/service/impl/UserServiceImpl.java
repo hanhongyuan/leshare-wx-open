@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import shop.leshare.common.entity.Result;
+import shop.leshare.weixin.open.bean.MpUser;
 import shop.leshare.weixin.open.mapper.WxMpUserMapper;
 import shop.leshare.weixin.open.service.UserService;
 
@@ -39,11 +40,13 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Result addUser(WxMpUser user, String appId) {
 		
-		DateTime dt = new DateTime(user.getSubscribeTime() * 1000);
-		
-		wxMpUserMapper.addUser(user, appId, dt.toString("yyyy-MM-dd HH:mm:ss"), StringUtils.join(user.getTagIds(), ","));
-		
-		logger.info("AppId:{} 有新的关注用户, {}", appId, user);
+		if(wxMpUserMapper.findUser(user.getOpenId()) == null){
+			wxMpUserMapper.addUser(MpUser.fromWxUser(user, appId));
+			logger.info("AppId:{} 有新的关注用户, {}", appId, user);
+		}else {
+			wxMpUserMapper.updateUser(MpUser.fromWxUser(user, appId));
+			logger.info("AppId:{} 有重新关注用户, {}", appId, user);
+		}
 		
 		return Result.success();
 	}
