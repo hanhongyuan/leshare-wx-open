@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * @author Binary Wang(https://github.com/binarywang)
+ * 服务号: 福建乐享启创科技
  */
 @RestController
 @RequestMapping("/open/wx1199ca0caee10fb8/callback")
-public class MpController {
-	private final Logger logger = LogManager.getLogger(MpController.class);
+public class Mp001Controller {
+	private final Logger logger = LogManager.getLogger(Mp001Controller.class);
 	
 	@Autowired
 	private WxMpService wxMpService;
