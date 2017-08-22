@@ -23,7 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <bcprov.version>1.54</bcprov.version>
-        <weixin-java-mp.version>2.7.3.BETA</weixin-java-mp.version>
+        <weixin-java-mp.version>2.7.8.BETA</weixin-java-mp.version>
     </properties>
 
     <!-- 插件仓库地址 -->
