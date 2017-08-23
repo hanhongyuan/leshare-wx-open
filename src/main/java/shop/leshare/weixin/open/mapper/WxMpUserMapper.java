@@ -1,11 +1,11 @@
 package shop.leshare.weixin.open.mapper;
 
-import me.chanjar.weixin.mp.bean.result.WxMpUser;
-import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Component;
 import shop.leshare.weixin.open.bean.MpUser;
-
-import java.util.List;
 
 /**
  * <p>Title: shop.leshare.weixin.open.mapper</p>

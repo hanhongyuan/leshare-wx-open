@@ -25,7 +25,7 @@ public class MsgHandler extends AbstractHandler {
 
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
-                                    Map<String, Object> context, WxMpService weixinService,
+                                    Map<String, Object> context, WxMpService wxMpService,
                                     WxSessionManager sessionManager) {
 
         if (!wxMessage.getMsgType().equals(WxConsts.XML_MSG_EVENT)) {
@@ -35,7 +35,7 @@ public class MsgHandler extends AbstractHandler {
         //当用户输入关键词如“你好”，“客服”等，并且有客服在线时，把消息转发给在线客服
         try {
             if (StringUtils.startsWithAny(wxMessage.getContent(), "你好", "客服")
-                    && weixinService.getKefuService().kfOnlineList()
+                    && wxMpService.getKefuService().kfOnlineList()
                     .getKfOnlineList().size() > 0) {
                 return WxMpXmlOutMessage.TRANSFER_CUSTOMER_SERVICE()
                         .fromUser(wxMessage.getToUser())
@@ -52,7 +52,7 @@ public class MsgHandler extends AbstractHandler {
         	//回复图文
 		    WxMpMaterialNews wxMpMaterialNews = null;
 		    try {
-			    WxMpMaterialService materialService = new WxMpMaterialServiceImpl(weixinService);
+			    WxMpMaterialService materialService = new WxMpMaterialServiceImpl(wxMpService);
 			    wxMpMaterialNews = materialService.materialNewsInfo("YHTuTdC4Hd52a97BpS0i0GigbgBBunfAkQbUD0paNa8");
 			    
 		    } catch (WxErrorException e) {
@@ -79,6 +79,8 @@ public class MsgHandler extends AbstractHandler {
 				            .build();
 		    
 	    }
+	
+	    outMessage = WxMpXmlOutMessage.TEXT().content(wxMpService.getWxMpConfigStorage().getAuthorizerAppid() + wxMessage.getContent()).build();
 	    
         return outMessage;
 
