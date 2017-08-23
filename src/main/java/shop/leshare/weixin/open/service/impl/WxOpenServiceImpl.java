@@ -255,7 +255,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 	 * @return
 	 */
 	@Override
-	public Result authorizer(String authCode) throws WxErrorException {
+	public String authorizer(String authCode) throws WxErrorException {
 		
 		WxOpenAuthCodeQuery authCodeQuery = new WxOpenAuthCodeQuery();
 		authCodeQuery.setComponent_appid(configStorage.getAppId());
@@ -276,7 +276,7 @@ public class WxOpenServiceImpl implements WxOpenService{
 		//save info to db
 		this.saveUserInfo(authCodeResult.getAuthorization_info().getAuthorizer_appid());
 		
-		return Result.success();
+		return authCodeResult.getAuthorization_info().getAuthorizer_appid();
 	}
 	
 	/**

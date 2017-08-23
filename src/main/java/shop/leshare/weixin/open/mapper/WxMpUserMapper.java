@@ -41,7 +41,7 @@ public interface WxMpUserMapper {
 			"  DATE_FORMAT(create_time, '%Y-%m-%d %H:%i:%s') create_time,\n" +
 			"  DATE_FORMAT(update_time, '%Y-%m-%d %H:%i:%s') update_time,\n" +
 			"  subscribe\n" +
-			"from wx_mp_user")
+			"from wx_mp_user where open_id=#{openId}")
 	MpUser findUser(String openId);
 	
 	@Insert("insert into wx_mp_user(\n" +
@@ -65,7 +65,7 @@ public interface WxMpUserMapper {
 			"VALUES (\n" +
 			"  #{app_id}, \n" +
 			"  #{open_id}, \n" +
-			"  #{nickname}, \n" +
+			"  #{nick_name}, \n" +
 			"  #{sex}, \n" +
 			"  #{language}, \n" +
 			"  #{city}, \n" +

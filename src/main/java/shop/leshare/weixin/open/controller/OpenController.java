@@ -2,6 +2,9 @@ package shop.leshare.weixin.open.controller;
 
 import com.google.common.collect.ImmutableMap;
 import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.mp.api.WxMpService;
+import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import me.chanjar.weixin.mp.bean.result.WxMpUserList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,8 +15,10 @@ import shop.leshare.common.entity.Result;
 import shop.leshare.weixin.open.bean.wx.WxOpenAuthMessage;
 import shop.leshare.weixin.open.bean.wx.WxOpenNotice;
 import shop.leshare.weixin.open.bean.wx.WxOpenVerifyMessage;
+import shop.leshare.weixin.open.service.UserService;
 import shop.leshare.weixin.open.service.WxOpenService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +40,12 @@ public class OpenController {
 	
 	@Autowired
 	private WxOpenService wxOpenService;
+	
+	@Autowired
+	private WxMpService wxMpService;
+	
+	@Autowired
+	private UserService userService;
 	
 	@PostMapping("/notice")
 	public String componentVerifyTicket(@RequestBody String requestBody,
@@ -69,15 +80,17 @@ public class OpenController {
 			logger.info("授权成功通知, data:{}", authMessage);
 			long expiresIn = (Long.parseLong(authMessage.getAuthorizationCodeExpiredTime()) * 1000 - System.currentTimeMillis())/1000;
 			if(expiresIn > 0){
-				wxOpenService.authorizer(authMessage.getAuthorizationCode());
+				String appId = wxOpenService.authorizer(authMessage.getAuthorizationCode());
+				syncUserInfo(appId);
 			}
+			
 			
 		}else if(StringUtils.equalsIgnoreCase(notice.getTypeInfo(), "updateauthorized")){//授权更新通知
 			WxOpenAuthMessage authMessage = WxOpenAuthMessage.fromXml(respXml);
 			logger.info("授权更新通知, data:{}", authMessage);
 			long expiresIn = (Long.parseLong(authMessage.getAuthorizationCodeExpiredTime()) * 1000 - System.currentTimeMillis())/1000;
 			if(expiresIn > 0){
-				wxOpenService.authorizer(authMessage.getAuthorizationCode());
+				String appId = wxOpenService.authorizer(authMessage.getAuthorizationCode());
 			}
 		}
 		
@@ -86,6 +99,35 @@ public class OpenController {
 		wxOpenService.checkAllAccessToken();
 		
 		return "success";
+	}
+	
+	/**
+	 * 从微信服务器全量同步用户数据
+	 * @param appId
+	 * @throws WxErrorException
+	 */
+	private void syncUserInfo(String appId) throws WxErrorException {
+		
+		logger.info("全量同步公众号用户数据， appId:{}", appId);
+		wxMpService.getWxMpConfigStorage().setAuthorizerAppid(appId);
+		
+		WxMpUserList userList = wxMpService.getUserService().userList(null);
+		
+		while(userList != null && userList.getCount() > 0){
+			
+			logger.info("全量同步公众号用户数据, 总用户数:{}, 本次拉取数:{}", userList.getTotal(), userList.getCount());
+			
+			List<String> openIds = userList.getOpenids();
+			List<WxMpUser> wxMpUsers = wxMpService.getUserService().userInfoList(openIds);
+			
+			wxMpUsers.forEach(wxMpUser -> userService.addUser(wxMpUser, appId));
+			
+			if(!StringUtils.isEmpty(userList.getNextOpenid())){
+				userList = wxMpService.getUserService().userList(userList.getNextOpenid());
+			}else {
+				userList = null;
+			}
+		}
 	}
 	
 	@GetMapping("/pre_auth_code")
@@ -110,7 +152,7 @@ public class OpenController {
 		
 		Result result = wxOpenService.saveAuthCode(authCode, expiresIn);
 		if(result.check()){
-			result = wxOpenService.authorizer(authCode);
+			wxOpenService.authorizer(authCode);
 		}
 		
 		return LeResponse.create(0, result);

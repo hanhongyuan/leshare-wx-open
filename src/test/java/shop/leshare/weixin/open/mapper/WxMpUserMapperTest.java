@@ -2,6 +2,7 @@ package shop.leshare.weixin.open.mapper;
 
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 public class WxMpUserMapperTest {
 	
+	
 	@Autowired
 	private WxMpUserMapper wxMpUserMapper;
 	
@@ -41,22 +43,7 @@ public class WxMpUserMapperTest {
 	@Test
 	public void addUser() throws Exception {
 		
-		WxMpUser user = new WxMpUser();
-		user.setOpenId("11111");
-		user.setNickname("name");
-		user.setSex("nv");
-		user.setLanguage("CN");
-		user.setCity("FUZHOU");
-		user.setProvince("FUJIAN");
-		user.setCountry("CHINA");
-		user.setHeadImgUrl("hahaha");
-		user.setSubscribeTime(1382694957L);
-		user.setUnionId("12345");
-		user.setRemark("hahahah");
-		user.setTagIds(null);
-		user.setGroupId(0);
-		
-		wxMpUserMapper.addUser(MpUser.fromWxUser(user, "12345"));
+		wxMpUserMapper.addUser(MpUser.fromWxUser(getWxMpUser(), "12345"));
 	}
 	
 	@Test
@@ -66,6 +53,11 @@ public class WxMpUserMapperTest {
 	
 	@Test
 	public void updateUser() throws Exception {
+		
+		wxMpUserMapper.updateUser(MpUser.fromWxUser(getWxMpUser(), "12345"));
+	}
+	
+	private WxMpUser getWxMpUser(){
 		WxMpUser user = new WxMpUser();
 		user.setOpenId("11111");
 		user.setNickname("lynn");
@@ -81,6 +73,7 @@ public class WxMpUserMapperTest {
 		user.setTagIds(new Long[]{1L, 2L});
 		user.setGroupId(0);
 		
-		wxMpUserMapper.updateUser(MpUser.fromWxUser(user, "12345"));
+		return user;
 	}
+	
 }

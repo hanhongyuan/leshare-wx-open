@@ -104,7 +104,7 @@ public interface WxOpenService {
 	 * }
 	 * @return
 	 */
-	Result authorizer(String authCode) throws WxErrorException;
+	String authorizer(String authCode) throws WxErrorException;
 	
 	/**
 	 * 获取授权方的帐号基本信息

@@ -156,6 +156,11 @@
             <version>${weixin-java-mp.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.github.binarywang</groupId>
+            <artifactId>java-emoji-converter</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.jodd</groupId>
             <artifactId>jodd-http</artifactId>
             <version>3.8.5</version>
