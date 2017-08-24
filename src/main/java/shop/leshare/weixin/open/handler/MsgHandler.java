@@ -12,6 +12,8 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,6 +25,8 @@ import java.util.Map;
 @Component
 public class MsgHandler extends AbstractHandler {
 
+	private Logger logger = LogManager.getLogger(MsgHandler.class);
+	
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                                     Map<String, Object> context, WxMpService wxMpService,
@@ -80,7 +84,13 @@ public class MsgHandler extends AbstractHandler {
 		    
 	    }
 	
-	    outMessage = WxMpXmlOutMessage.TEXT().content(wxMpService.getWxMpConfigStorage().getAuthorizerAppid() + wxMessage.getContent()).build();
+	    outMessage = WxMpXmlOutMessage.TEXT()
+			    .content(wxMpService.getWxMpConfigStorage().getAuthorizerAppid() + wxMessage.getContent())
+			    .fromUser(wxMessage.getToUser())
+			    .toUser(wxMessage.getFromUser())
+			    .build();
+	    
+	    logger.info("返回的消息: {}", outMessage.toXml());
 	    
         return outMessage;
 

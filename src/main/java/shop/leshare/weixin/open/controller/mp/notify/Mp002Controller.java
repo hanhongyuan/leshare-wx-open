@@ -86,7 +86,7 @@ public class Mp002Controller {
 			if (outMessage == null) {
 				return "";
 			}
-
+			
 			out = outMessage.toEncryptedXml(this.wxMpService.getWxMpConfigStorage());
 		}
 
