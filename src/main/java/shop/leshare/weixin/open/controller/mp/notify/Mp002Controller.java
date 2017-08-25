@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/open/wx36b9de83df162a4f/callback")
-public class Mp002Controller {
+public class Mp002Controller extends BaseController{
 	private final Logger logger = LogManager.getLogger(Mp002Controller.class);
 	
 	@Autowired
@@ -55,44 +55,7 @@ public class Mp002Controller {
 			                   required = false) String encType,
 	                   @RequestParam(name = "msg_signature",
 			                   required = false) String msgSignature) {
-		this.logger.info(
-				"\n接收微信请求：[signature=[{}], encType=[{}], msgSignature=[{}],"
-						+ " timestamp=[{}], nonce=[{}], requestBody=[\n{}\n] ",
-				signature, encType, msgSignature, timestamp, nonce, requestBody);
-		
-		this.wxMpService.getWxMpConfigStorage().setAuthorizerAppid(APPID);
-		
-		if (!this.wxMpService.checkSignature(timestamp, nonce, signature)) {
-			throw new IllegalArgumentException("非法请求，可能属于伪造的请求！");
-		}
-
-		String out = null;
-		if (encType == null) {
-			// 明文传输的消息
-			WxMpXmlMessage inMessage = WxMpXmlMessage.fromXml(requestBody);
-			WxMpXmlOutMessage outMessage = this.route(inMessage);
-			if (outMessage == null) {
-				return "";
-			}
-
-			out = outMessage.toXml();
-		} else if ("aes".equals(encType)) {
-			// aes加密的消息
-			WxMpXmlMessage inMessage = WxMpXmlMessage.fromEncryptedXml(
-					requestBody, this.wxMpService.getWxMpConfigStorage(), timestamp,
-					nonce, msgSignature);
-			this.logger.debug("\n消息解密后内容为：\n{} ", inMessage.toString());
-			WxMpXmlOutMessage outMessage = this.route(inMessage);
-			if (outMessage == null) {
-				return "";
-			}
-			
-			out = outMessage.toEncryptedXml(this.wxMpService.getWxMpConfigStorage());
-		}
-
-		this.logger.debug("\n组装回复信息：{}", out);
-		
-		return out;
+		return receiveMsg(APPID, requestBody, signature, timestamp, nonce, encType, msgSignature);
 	}
 	
 	private WxMpXmlOutMessage route(WxMpXmlMessage message) {
