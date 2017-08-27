@@ -35,9 +35,9 @@ public abstract class BaseController {
 	                       String nonce, String encType, String msgSignature){
 		
 		this.logger.info(
-				"\n接收微信请求：[signature=[{}], encType=[{}], msgSignature=[{}],"
+				"\n接收{}微信请求：[signature=[{}], encType=[{}], msgSignature=[{}],"
 						+ " timestamp=[{}], nonce=[{}], requestBody=[\n{}\n] ",
-				signature, encType, msgSignature, timestamp, nonce, requestBody);
+				appId, signature, encType, msgSignature, timestamp, nonce, requestBody);
 		
 		this.wxMpService.getWxMpConfigStorage().setAuthorizerAppid(appId);
 		
