@@ -51,46 +51,46 @@ public class MsgHandler extends AbstractHandler {
 
         WxMpXmlOutMessage outMessage = null;
         
-        //组装回复消息
-	    if(StringUtils.equals(wxMessage.getContent(), "什么鬼")){
-        	//回复图文
-		    WxMpMaterialNews wxMpMaterialNews = null;
-		    try {
-			    WxMpMaterialService materialService = new WxMpMaterialServiceImpl(wxMpService);
-			    wxMpMaterialNews = materialService.materialNewsInfo("YHTuTdC4Hd52a97BpS0i0GigbgBBunfAkQbUD0paNa8");
-			    
-		    } catch (WxErrorException e) {
-			    e.printStackTrace();
-		    }
-		
-		    List<WxMpXmlOutNewsMessage.Item> itemList = Lists.newArrayList();
-		    
-		    if(wxMpMaterialNews.getArticles() != null){
-			    wxMpMaterialNews.getArticles().forEach(article -> {
-				    WxMpXmlOutNewsMessage.Item item = new WxMpXmlOutNewsMessage.Item();
-				    item.setTitle(article.getTitle());
-				    item.setDescription(article.getDigest());
-				    item.setPicUrl(article.getThumbUrl());
-				    item.setUrl(article.getUrl());
-				    itemList.add(item);
-			    });
-		    }
-		
-		    outMessage = WxMpXmlOutMessage.NEWS()
-				            .articles(itemList)
-				            .fromUser(wxMessage.getToUser())
-				            .toUser(wxMessage.getFromUser())
-				            .build();
-		    
-	    }
+//        //组装回复消息
+//	    if(StringUtils.equals(wxMessage.getContent(), "什么鬼")){
+//        	//回复图文
+//		    WxMpMaterialNews wxMpMaterialNews = null;
+//		    try {
+//			    WxMpMaterialService materialService = new WxMpMaterialServiceImpl(wxMpService);
+//			    wxMpMaterialNews = materialService.materialNewsInfo("YHTuTdC4Hd52a97BpS0i0GigbgBBunfAkQbUD0paNa8");
+//
+//		    } catch (WxErrorException e) {
+//			    e.printStackTrace();
+//		    }
+//
+//		    List<WxMpXmlOutNewsMessage.Item> itemList = Lists.newArrayList();
+//
+//		    if(wxMpMaterialNews.getArticles() != null){
+//			    wxMpMaterialNews.getArticles().forEach(article -> {
+//				    WxMpXmlOutNewsMessage.Item item = new WxMpXmlOutNewsMessage.Item();
+//				    item.setTitle(article.getTitle());
+//				    item.setDescription(article.getDigest());
+//				    item.setPicUrl(article.getThumbUrl());
+//				    item.setUrl(article.getUrl());
+//				    itemList.add(item);
+//			    });
+//		    }
+//
+//		    outMessage = WxMpXmlOutMessage.NEWS()
+//				            .articles(itemList)
+//				            .fromUser(wxMessage.getToUser())
+//				            .toUser(wxMessage.getFromUser())
+//				            .build();
+//
+//	    }
 	
-	    outMessage = WxMpXmlOutMessage.TEXT()
-			    .content(wxMpService.getWxMpConfigStorage().getAuthorizerAppid() + wxMessage.getContent())
-			    .fromUser(wxMessage.getToUser())
-			    .toUser(wxMessage.getFromUser())
-			    .build();
+//	    outMessage = WxMpXmlOutMessage.TEXT()
+//			    .content(wxMpService.getWxMpConfigStorage().getAuthorizerAppid() + wxMessage.getContent())
+//			    .fromUser(wxMessage.getToUser())
+//			    .toUser(wxMessage.getFromUser())
+//			    .build();
 	    
-	    logger.info("返回的消息: {}", outMessage.toXml());
+	    logger.info("返回的消息: {}", outMessage == null ? "" : outMessage.toXml());
 	    
         return outMessage;
 
