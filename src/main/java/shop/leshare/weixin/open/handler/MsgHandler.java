@@ -14,7 +14,11 @@ import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import shop.leshare.common.entity.Result;
+import shop.leshare.common.entity.Shop;
+import shop.leshare.weixin.open.service.ShopService;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,9 @@ public class MsgHandler extends AbstractHandler {
 
 	private Logger logger = LogManager.getLogger(MsgHandler.class);
 	
+	@Autowired
+	private ShopService shopService;
+	
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                                     Map<String, Object> context, WxMpService wxMpService,
@@ -35,7 +42,9 @@ public class MsgHandler extends AbstractHandler {
         if (!wxMessage.getMsgType().equals(WxConsts.XML_MSG_EVENT)) {
             //TODO 可以选择将消息保存到本地
         }
-
+	
+	    WxMpXmlOutMessage outMessage = null;
+        
         //当用户输入关键词如“你好”，“客服”等，并且有客服在线时，把消息转发给在线客服
         try {
             if (StringUtils.startsWithAny(wxMessage.getContent(), "你好", "客服")
@@ -44,12 +53,24 @@ public class MsgHandler extends AbstractHandler {
                 return WxMpXmlOutMessage.TRANSFER_CUSTOMER_SERVICE()
                         .fromUser(wxMessage.getToUser())
                         .toUser(wxMessage.getFromUser()).build();
+            }else if(StringUtils.startsWithIgnoreCase(wxMessage.getContent(), "bind")){
+             
+            	String code = StringUtils.substringAfter(wxMessage.getContent(), "bind");
+            	String text = shopService.bindShopNotifyUser(code, wxMessage.getOpenId());
+            	
+	            outMessage = WxMpXmlOutMessage.TEXT().content(text)
+			            .fromUser(wxMessage.getToUser())
+			            .toUser(wxMessage.getFromUser())
+			            .build();
+	            
+	            return outMessage;
             }
+            
         } catch (WxErrorException e) {
-            e.printStackTrace();
+            logger.error(e.toString(), e);
         }
 
-        WxMpXmlOutMessage outMessage = null;
+        
         
 //        //组装回复消息
 //	    if(StringUtils.equals(wxMessage.getContent(), "什么鬼")){
