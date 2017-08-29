@@ -44,6 +44,21 @@ public class MsgHandler extends AbstractHandler {
         }
 	
 	    WxMpXmlOutMessage outMessage = null;
+	
+	    //处理公司服务号的订单绑定通知服务
+	    if(StringUtils.equals(wxMessage.getToUser(), "gh_14a319bcec72")//仅针对公司服务号
+			    && StringUtils.startsWithIgnoreCase(wxMessage.getContent(), "bind")){
+		
+		    String code = StringUtils.substringAfter(wxMessage.getContent(), "bind");
+		    String text = shopService.bindShopNotifyUser(code, wxMessage.getFromUser());
+		
+		    outMessage = WxMpXmlOutMessage.TEXT().content(text)
+				    .fromUser(wxMessage.getToUser())
+				    .toUser(wxMessage.getFromUser())
+				    .build();
+		
+		    return outMessage;
+	    }
         
         //当用户输入关键词如“你好”，“客服”等，并且有客服在线时，把消息转发给在线客服
         try {
@@ -53,19 +68,7 @@ public class MsgHandler extends AbstractHandler {
                 return WxMpXmlOutMessage.TRANSFER_CUSTOMER_SERVICE()
                         .fromUser(wxMessage.getToUser())
                         .toUser(wxMessage.getFromUser()).build();
-            }else if(StringUtils.startsWithIgnoreCase(wxMessage.getContent(), "bind")){
-             
-            	String code = StringUtils.substringAfter(wxMessage.getContent(), "bind");
-            	String text = shopService.bindShopNotifyUser(code, wxMessage.getOpenId());
-            	
-	            outMessage = WxMpXmlOutMessage.TEXT().content(text)
-			            .fromUser(wxMessage.getToUser())
-			            .toUser(wxMessage.getFromUser())
-			            .build();
-	            
-	            return outMessage;
             }
-            
         } catch (WxErrorException e) {
             logger.error(e.toString(), e);
         }

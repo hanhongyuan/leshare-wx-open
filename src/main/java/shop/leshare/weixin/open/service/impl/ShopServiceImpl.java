@@ -38,6 +38,8 @@ public class ShopServiceImpl implements ShopService{
 	@Override
 	public String bindShopNotifyUser(String code, String openId) {
 		
+		logger.info("通过回复公众号进行绑定商户订单通知, shopCode:{}, openId:{}", code, openId);
+		
 		Shop shop = shopMapper.findShopIdByCode(code);
 		
 		if(shop == null) {
