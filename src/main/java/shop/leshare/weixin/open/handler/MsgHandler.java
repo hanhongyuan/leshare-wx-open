@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import shop.leshare.common.entity.Result;
 import shop.leshare.common.entity.Shop;
+import shop.leshare.weixin.open.service.MsgService;
 import shop.leshare.weixin.open.service.ShopService;
 
 import java.util.List;
@@ -34,15 +35,20 @@ public class MsgHandler extends AbstractHandler {
 	@Autowired
 	private ShopService shopService;
 	
+	@Autowired
+	private MsgService msgService;
+	
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
-                                    Map<String, Object> context, WxMpService wxMpService,
+                                    Map<String, Object> context,
+                                    WxMpService wxMpService,
                                     WxSessionManager sessionManager) {
 
         if (!wxMessage.getMsgType().equals(WxConsts.XML_MSG_EVENT)) {
-            //TODO 可以选择将消息保存到本地
+            //将消息保存到本地
+	        msgService.addMsg(wxMessage);
         }
-	
+        
 	    WxMpXmlOutMessage outMessage = null;
 	
 	    //处理公司服务号的订单绑定通知服务
