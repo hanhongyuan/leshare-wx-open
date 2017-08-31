@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import shop.leshare.common.entity.Result;
 import shop.leshare.common.utils.EmptyCheckUtils;
 import shop.leshare.weixin.open.bean.MpUser;
+import shop.leshare.weixin.open.bean.OpenUserNotify;
 import shop.leshare.weixin.open.mapper.WxMpUserMapper;
+import shop.leshare.weixin.open.mapper.WxOpenUserNotifyMapper;
 import shop.leshare.weixin.open.service.UserService;
 
 import java.util.List;
@@ -34,6 +36,20 @@ public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	private WxMpUserMapper wxMpUserMapper;
+	
+	@Autowired
+	private WxOpenUserNotifyMapper wxOpenUserNotifyMapper;
+	
+	/**
+	 * 查找用户信息
+	 *
+	 * @param openId
+	 * @return
+	 */
+	@Override
+	public MpUser findUserByOpenId(String openId) {
+		return wxMpUserMapper.findUser(openId);
+	}
 	
 	/**
 	 * 新增微信公众号用户
@@ -91,5 +107,22 @@ public class UserServiceImpl implements UserService{
 		
 		return null;
 	}
+	
+	/**
+	 * 查找公众号通知列表
+	 *
+	 * @param appId
+	 * @return
+	 */
+	@Override
+	public List<OpenUserNotify> findNotifyUsers(String appId) {
+		
+		List<OpenUserNotify> notifyList = wxOpenUserNotifyMapper.findByAppid(appId);
+		
+		logger.debug("根据appId:({})查找通知列表, count :{}", appId, notifyList == null ? 0 : notifyList.size());
+		
+		return notifyList;
+	}
+	
 	
 }

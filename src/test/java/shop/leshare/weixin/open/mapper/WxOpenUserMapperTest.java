@@ -23,6 +23,11 @@ import java.util.List;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class WxOpenUserMapperTest {
+	@Test
+	public void findOpenUserByUsername() throws Exception {
+		OpenUser openUser = wxOpenUserMapper.findOpenUserByUsername("gh_14a319bcec72");
+		System.out.println("openUser = " + openUser);
+	}
 	
 	@Autowired
 	private WxOpenUserMapper wxOpenUserMapper;

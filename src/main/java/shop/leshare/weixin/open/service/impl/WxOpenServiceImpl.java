@@ -457,4 +457,14 @@ public class WxOpenServiceImpl implements WxOpenService{
 		
 		return Result.success();
 	}
+	
+	/**
+	 * @param username
+	 * @return
+	 */
+	@Override
+	public OpenUser findOpenUserByUsername(String username) {
+		
+		return wxOpenUserMapper.findOpenUserByUsername(username);
+	}
 }

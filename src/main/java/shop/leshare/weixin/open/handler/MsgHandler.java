@@ -1,25 +1,26 @@
 package shop.leshare.weixin.open.handler;
 
-import com.google.common.collect.Lists;
 import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.common.session.WxSessionManager;
-import me.chanjar.weixin.mp.api.WxMpMaterialService;
 import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.api.impl.WxMpMaterialServiceImpl;
-import me.chanjar.weixin.mp.bean.material.WxMpMaterialNews;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.message.WxMpXmlOutMessage;
-import me.chanjar.weixin.mp.bean.message.WxMpXmlOutNewsMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import shop.leshare.common.entity.Result;
-import shop.leshare.common.entity.Shop;
+import shop.leshare.common.utils.EmptyCheckUtils;
+import shop.leshare.weixin.open.bean.MpUser;
+import shop.leshare.weixin.open.bean.OpenUser;
+import shop.leshare.weixin.open.bean.OpenUserNotify;
+import shop.leshare.weixin.open.manage.WxMpNotifyManage;
 import shop.leshare.weixin.open.service.MsgService;
 import shop.leshare.weixin.open.service.ShopService;
+import shop.leshare.weixin.open.service.UserService;
+import shop.leshare.weixin.open.service.WxOpenService;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,15 @@ public class MsgHandler extends AbstractHandler {
 	@Autowired
 	private MsgService msgService;
 	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private WxOpenService wxOpenService;
+	
+	@Autowired
+	private WxMpNotifyManage wxMpNotifyManage;
+	
     @Override
     public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage,
                                     Map<String, Object> context,
@@ -47,6 +57,24 @@ public class MsgHandler extends AbstractHandler {
         if (!wxMessage.getMsgType().equals(WxConsts.XML_MSG_EVENT)) {
             //将消息保存到本地
 	        msgService.addMsg(wxMessage);
+	
+	        if(wxMessage.getMsgType().equalsIgnoreCase("text")){
+		        OpenUser openUser = wxOpenService.findOpenUserByUsername(wxMessage.getToUser());
+		        MpUser mpUser = userService.findUserByOpenId(wxMessage.getFromUser());
+		
+		        if(openUser != null && mpUser != null){
+			        //公众号消息通知
+			        List<OpenUserNotify> notifyList = userService.findNotifyUsers(openUser.getApp_id());
+			
+			        if(!EmptyCheckUtils.isEmpty(notifyList)){
+				
+				        wxMpNotifyManage.sendLeMsgNotify(notifyList, openUser.getNick_name(), mpUser.getNick_name(),
+						        wxMessage.getContent(), new DateTime(wxMessage.getCreateTime() * 1000).toString("yyyy-MM-dd HH:mm:ss"));
+				        
+				        logger.info("发送消息给公众号:({})管理员.", openUser.getNick_name());
+			        }
+		        }
+	        }
         }
         
 	    WxMpXmlOutMessage outMessage = null;

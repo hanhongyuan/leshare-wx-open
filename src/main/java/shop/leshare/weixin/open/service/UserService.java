@@ -2,6 +2,8 @@ package shop.leshare.weixin.open.service;
 
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import shop.leshare.common.entity.Result;
+import shop.leshare.weixin.open.bean.MpUser;
+import shop.leshare.weixin.open.bean.OpenUserNotify;
 
 import java.util.List;
 
@@ -17,6 +19,13 @@ import java.util.List;
  *         CreateTime：8/22/17
  */
 public interface UserService {
+	
+	/**
+	 * 查找用户信息
+	 * @param openId
+	 * @return
+	 */
+	MpUser findUserByOpenId(String openId);
 	
 	/**
 	 * 新增微信公众号用户
@@ -37,4 +46,11 @@ public interface UserService {
 	 * @return
 	 */
 	Result addUserList(List<WxMpUser> userList);
+	
+	/**
+	 * 查找公众号通知列表
+	 * @param appId
+	 * @return
+	 */
+	List<OpenUserNotify> findNotifyUsers(String appId);
 }

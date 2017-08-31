@@ -27,6 +27,29 @@ public interface WxOpenUserMapper {
 	 */
 	@Select("select * from wx_open_user where is_use=1")
 	List<OpenUser> findUserList();
+	
+	@Select("SELECT\n" +
+			"  id,\n" +
+			"  app_id,\n" +
+			"  nick_name,\n" +
+			"  head_img,\n" +
+			"  service_type_info,\n" +
+			"  verify_type_info,\n" +
+			"  user_name,\n" +
+			"  signature,\n" +
+			"  principal_name,\n" +
+			"  alias,\n" +
+			"  business_info,\n" +
+			"  qrcode_url,\n" +
+			"  func_info,\n" +
+			"  type,\n" +
+			"  is_use,\n" +
+			"  date_format(create_time, '%Y-%m-%d %H:%i:%s') create_time,\n" +
+			"  date_format(update_time, '%Y-%m-%d %H:%i:%s') update_time,\n" +
+			"  miniprogram_info\n" +
+			"FROM wx_open_user\n" +
+			"where user_name=#{user_name}")
+	OpenUser findOpenUserByUsername(@Param("user_name") String username);
 
 	@Insert("insert into wx_open_user(\n" +
 			"  app_id,\n" +

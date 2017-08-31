@@ -2,6 +2,7 @@ package shop.leshare.weixin.open.service;
 
 import me.chanjar.weixin.common.exception.WxErrorException;
 import shop.leshare.common.entity.Result;
+import shop.leshare.weixin.open.bean.OpenUser;
 import shop.leshare.weixin.open.bean.wx.WxOpenVerifyMessage;
 
 import java.io.IOException;
@@ -149,4 +150,11 @@ public interface WxOpenService {
 	 * @return
 	 */
 	Result unauthorized(String appId);
+	
+	/**
+	 * 
+	 * @param username
+	 * @return
+	 */
+	OpenUser findOpenUserByUsername(String username);
 }
