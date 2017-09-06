@@ -58,10 +58,13 @@ public class MsgHandler extends AbstractHandler {
             //将消息保存到本地
 	        msgService.addMsg(wxMessage);
 	
-	        if(wxMessage.getMsgType().equalsIgnoreCase("text")){
+	        if(wxMessage.getMsgType().equalsIgnoreCase("text") ||
+			        wxMessage.getMsgType().equalsIgnoreCase("image" )){
 		        OpenUser openUser = wxOpenService.findOpenUserByUsername(wxMessage.getToUser());
 		        MpUser mpUser = userService.findUserByOpenId(wxMessage.getFromUser());
 		
+		        logger.debug("准备转发消息给公众号, openUser:{}, mpUser:{}", openUser, mpUser);
+		        
 		        if(openUser != null && mpUser != null){
 			        //公众号消息通知
 			        List<OpenUserNotify> notifyList = userService.findNotifyUsers(openUser.getApp_id());
@@ -69,7 +72,7 @@ public class MsgHandler extends AbstractHandler {
 			        if(!EmptyCheckUtils.isEmpty(notifyList)){
 				
 				        wxMpNotifyManage.sendLeMsgNotify(notifyList, openUser.getNick_name(), mpUser.getNick_name(),
-						        wxMessage.getContent(), new DateTime(wxMessage.getCreateTime() * 1000).toString("yyyy-MM-dd HH:mm:ss"));
+						        wxMessage.getContent(), new DateTime(wxMessage.getCreateTime() * 1000).toString("yyyy-MM-dd HH:mm:ss"), wxMessage.getMsgType());
 				        
 				        logger.info("发送消息给公众号:({})管理员.", openUser.getNick_name());
 			        }

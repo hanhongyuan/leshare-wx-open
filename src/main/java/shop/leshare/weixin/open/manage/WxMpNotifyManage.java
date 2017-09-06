@@ -6,10 +6,10 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.api.impl.WxMpServiceApacheHttpClientImpl;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateData;
 import me.chanjar.weixin.mp.bean.template.WxMpTemplateMessage;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import shop.leshare.common.entity.Result;
 import shop.leshare.weixin.open.bean.OpenUserNotify;
 
@@ -55,7 +55,7 @@ public class WxMpNotifyManage {
 	 * 客户公众号新留言消息模板消息
 	 * @return
 	 */
-	public Result sendLeMsgNotify(List<OpenUserNotify> openUserNotifies, String mpName, String username, String content, String msgTime){
+	public Result sendLeMsgNotify(List<OpenUserNotify> openUserNotifies, String mpName, String username, String content, String msgTime, String msgType){
 		
 		for (OpenUserNotify openUserNotify : openUserNotifies) {
 			
@@ -66,12 +66,21 @@ public class WxMpNotifyManage {
 					.templateId(NEW_MSG_TEMPLATE_ID)
 					.build();
 			
+			boolean isImage = false;
+			
+			if(StringUtils.equalsIgnoreCase(msgType, "image")){
+				isImage = true;
+			}
+			
 			templateMessage.addWxMpTemplateData(new WxMpTemplateData("first", "您的公众号[" + mpName + "], 有新的留言消息.", "#000000"));
 			
 			templateMessage.addWxMpTemplateData(new WxMpTemplateData("keyword1", username, fontColor));
-			templateMessage.addWxMpTemplateData(new WxMpTemplateData("keyword2", content, fontColor));
+			
+			templateMessage.addWxMpTemplateData(new WxMpTemplateData("keyword2", isImage ? "图片消息，点击查看!" : content, fontColor));
 			
 			templateMessage.addWxMpTemplateData(new WxMpTemplateData("keyword3", msgTime, fontColor));
+			
+			if(isImage) templateMessage.setUrl("http://leshare.shop");
 			
 			try {
 				String msgId = getCompanyService().getTemplateMsgService().sendTemplateMsg(templateMessage);

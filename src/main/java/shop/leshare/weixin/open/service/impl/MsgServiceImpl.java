@@ -55,6 +55,10 @@ public class MsgServiceImpl implements MsgService{
 			mpMsg.setContent(content);
 		}
 		
+		if(!StringUtils.isEmpty(msg.getPicUrl())){
+			mpMsg.setContent(msg.getPicUrl());
+		}
+		
 		DateTime dt = new DateTime(msg.getCreateTime() * 1000);
 		
 		mpMsg.setMsgTime(dt.toString("yyyy-MM-dd HH:mm:ss"));
